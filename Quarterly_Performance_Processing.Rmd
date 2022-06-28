@@ -1,0 +1,2616 @@
+---
+title: "Quarterly Performance Report Q2"
+output: 
+  powerpoint_presentation:
+    reference_doc: template.pptx
+---
+
+
+```{r Load Packages, echo = FALSE, warning = FALSE, message = FALSE}
+memory.limit(size = 8000000)
+# Load packages -----------------------------------------------------------------------------------
+suppressMessages({
+  library(readxl)
+  library(writexl)
+  library(plyr)
+  library(dplyr)
+  library(data.table)
+  library(zoo)
+  library(shiny)
+  library(shinydashboard)
+  library(shinydashboardPlus)
+  library(shinyWidgets)
+  library(htmlwidgets)
+  library(lubridate)
+  library(tcltk)
+  library(tidyverse)
+  library(plotly)
+  library(knitr)
+  library(kableExtra)
+  library(leaflet)
+  library(grid)
+  library(gridExtra)
+  library(eeptools)
+  library(ggQC)
+  library(zipcodeR)
+  library(utils)
+  library(scales)
+  library(chron)
+  library(bupaR)
+  library(shiny)
+  library(DT)
+  library(DiagrammeR)
+  library(shinyalert)
+  library(edeaR)
+  library(processmapR)
+  library(processmonitR)
+  library(processanimateR)
+  library(tidyr)
+  library(lubridate)
+  library(RColorBrewer)
+  library(DiagrammeR)
+  library(ggplot2)
+  library(leaflet)
+  library(readr)
+  library(highcharter)
+  library(ggforce) # for 'geom_arc_bar'
+  library(packcircles) # for packed circle graph
+  library(viridis)
+  library(ggiraph)
+  library(treemapify)
+  library(treemap)
+  library(broom)
+  library(extrafont)
+  library(tis) # for US holidays
+  library(vroom)
+  library(sjmisc)
+  library(tools)
+  library(here)
+  library(shinyBS)
+  library(shinyscreenshot)
+  library(fasttime)
+  library(shinycssloaders)
+  library(feather)
+  # library(zipcodeR)
+  library(formattable)
+  library(shinyjs)
+  library(janitor)
+  library(patchwork)
+  library(flexdashboard)
+  # library(tidyverse)
+  # library(viridis)
+  # library(hrbrthemes)
+  # library(plotly)
+  # install.packages("bsts")
+  library(bsts)
+  library(reactable)
+  # install.packages("reactablefmtr")
+  library(reactablefmtr)
+  library(svDialogs)
+  library(openxlsx)
+  library(flextable)
+  library(officedown)
+  library(officer)
+  library(magrittr)
+  library(webshot) 
+  library(png)
+  library(ggh4x)
+})
+
+```
+
+
+```{r Graph asthetics, echo = FALSE, warning = FALSE, message = FALSE}
+### Color Functions for Graphs ============================================================
+
+# Mount Sinai corporate colors "USE THIS TO ADD COLORS"
+MountSinai_colors <- c(
+  `dark purple`  = "#212070",
+  `dark pink`    = "#d80b8c",
+  `dark blue`    = "#00aeef",
+  `dark grey`    = "#7f7f7f",
+  `yellow`       = "#ffc000",
+  `purple`       = "#7030a0",
+  `med purple`   = "#5753d0",
+  `med pink`     = "#f75dbe",
+  `med blue`     = "#5cd3ff",
+  `med grey`     = "#a5a7a5",
+  `light purple` = "#c7c6ef",
+  `light pink`   = "#fcc9e9",
+  `light blue`   = "#c9f0ff",
+  `light grey`   = "#dddedd"
+  )
+
+# Function to extract Mount Sinai colors as hex codes
+# Use Character names of MountSinai_colors
+
+MountSinai_cols <- function(...) {
+  cols <- c(...)
+  
+  if (is.null(cols))
+    return (MountSinai_colors)
+  
+  MountSinai_colors[cols]
+}
+
+# Color Function that can be used to call all colors is "MountSinai_cols()"
+# Use in ggplot 
+
+  #MountSinai_cols()       # will provide all colors and their hex codes in a table 
+  #MountSinai_cols("pink") # will provide color name and the hex code for the pink color
+
+# Create palettes 
+MountSinai_palettes <- list(
+  `all`   = MountSinai_cols("dark purple","dark pink","dark blue","dark grey",
+                            "med purple","med pink","med blue","med grey", 
+                            "light purple","light pink","light blue","light grey"),
+  
+  `main`  = MountSinai_cols("dark purple","dark pink","dark blue","dark grey"),
+  
+  `purple`  = MountSinai_cols("dark purple","med purple","light purple"),
+  
+  `pink`  = MountSinai_cols("dark pink","med pink","light pink"),
+  
+  `blue`  = MountSinai_cols("dark blue", "med blue", "light blue"),
+  
+  `grey`  = MountSinai_cols("dark grey", "med grey", "light grey"),
+  
+  `purpleGrey` = MountSinai_cols("dark purple", "dark grey"),
+  
+  `pinkBlue` = MountSinai_cols("dark pink", "dark blue")
+  
+)
+
+# MountSinai_palettes
+# Return function to interpolate a Mount Sinai color palette
+# default value is the main palette, reverse = True will change the order
+
+MountSinai_pal <- function(palette = "all", reverse = FALSE, ...) {
+  pal <- MountSinai_palettes[[palette]]
+  
+  if (reverse) pal <- rev(pal)
+  
+  colorRampPalette(pal, ...)
+}
+
+
+
+# Scale Function for ggplot can be used instead of scale_color_manual
+scale_color_MountSinai <- function(palette = "all", discrete = TRUE, reverse = FALSE, ...) {
+  pal <- MountSinai_pal(palette = palette, reverse = reverse)
+  
+  if (discrete) {
+    discrete_scale("colour", paste0("MountSinai_", palette), palette = pal, ...)
+  } else {
+    scale_color_gradientn(colours = pal(256), ...)
+  }
+}
+
+# Scale Fill for ggplot insetead of scale_fill_manual 
+scale_fill_MountSinai <- function(palette = "all", discrete = TRUE, reverse = FALSE, ...) {
+  pal <- MountSinai_pal(palette = palette, reverse = reverse)
+
+  if (discrete) {
+    discrete_scale("fill", paste0("MountSinai_", palette), palette = pal, ...)
+  } else {
+    scale_fill_gradientn(colours = pal(256), ...)
+  }
+}
+
+# Use in ggplot 
+  # scale_color_MountSinai("main")
+
+```
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+<style>
+.table {
+table-layout: fixed;
+width: 100%;
+}
+</style>
+
+```{r Global Functions, echo = FALSE, warning = FALSE, message = FALSE}
+
+'%!in%' <- function(x,y)!('%in%'(x,y)) # Does not include
+not_all_na <- function(x) all(!is.na(x)) # Exclude columns with All NAs
+
+```
+
+
+```{r Import Scheduling and Utilization Data, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Specify campuses to include
+inc_sites <- c("NETWORK","MSM","MSH-MSDFP","ONCOLOGY","MSW","MSBI","MSUS","MSH- AMBULATORY CARE","MSDD")
+
+# Import in scheduling data ----------------------------------------------------
+scheduling_data_raw <- as.data.frame(read_rds(file.choose())) 
+scheduling_data_raw <- scheduling_data_raw %>%
+  mutate(Appt.WeekNum = lubridate::epiweek(Appt.DateYear),
+         Appt.YearQtr = as.yearqtr(Appt.DTTM),
+         Appt.Made.YearQtr = as.yearqtr(Appt.Made.DTTM),
+         Visit.Method  = case_when(Visit.Method == "IN PERSON" ~ 'IN PERSON',TRUE ~ 'TELEHEALTH'),
+         New.PT3 = case_when(New.PT3 == "TRUE" ~ 'New',TRUE ~ 'Established'),
+         Appt.Made.DateYear = as.Date(Appt.Made.DTTM, format="%Y-%m-%d"),
+         Appt.Made.MonthYear = format(as.Date(Appt.Made.DTTM, format="%m/%d/%Y"), "%Y-%m"),
+         Appt.Made.Year = format(as.Date(Appt.Made.DTTM, format="%m/%d/%Y"), "%Y"),
+         Appt.Made.WeekNum = as.numeric(strftime(Appt.Made.DTTM, format = "%V"))) 
+
+scheduling_data_raw <- scheduling_data_raw %>% filter(Campus %in% inc_sites)
+
+# Import in utilization data ---------------------------------------------------
+util_data_raw <- as.data.frame(read_rds(file.choose())) %>%
+  filter(Appt.Status == "Arrived") %>%
+  filter(Appt.DateYear <= Sys.Date()) 
+
+util_data_raw$Appt.YearQtr <- as.yearqtr(util_data_raw$Appt.DateYear) 
+
+## Add Session Column to Scheduling and Utilization
+scheduling_data_raw$Session <- ifelse(as.integer(sub(':.*', '', scheduling_data_raw$Time)) >= 12, 'PM', 'AM') 
+util_data_raw$Session <- ifelse(as.integer(sub(':.*', '', util_data_raw$Appt.TM.Hr)) >= 12, 'PM', 'AM') 
+
+```
+
+```{r Import Global Mapping Files, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Import Department Zip Code Data (Epic Department Zip Code Mapping) -----------
+dept_zip_code_ref <- read_csv("Department_Zip_Code.csv")
+visitPlan <- read_csv(file.choose())
+
+
+# Map Visit Plan in scheduling data
+scheduling_data_raw$Coverage <- visitPlan$VisitPlan_Group[match(scheduling_data_raw$VISITPLAN, visitPlan$VISITPLAN)]
+
+```
+
+
+```{r Import Room Inventory Data, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Import Room Count Summary by Specialty and Site 
+room_count_raw <- read_excel("ENT_Room_Count_Summary.xlsx")
+room_count_raw <- room_count_raw %>%
+  filter(!is.na(`Room Count`)) 
+
+room_count_summary_site <- room_count_raw %>%
+  group_by(Campus.Specialty, Campus, Benchmark) %>%
+  summarise(room_count = sum(`Room Count`))
+
+room_count_summary_mshs <- room_count_raw %>%
+  group_by(Campus.Specialty, Benchmark) %>%
+  summarise(room_count = sum(`Room Count`),
+            Benchmark = mean(Benchmark ))
+
+```
+
+```{r Productivity Data Import, echo = FALSE, warning = FALSE, message = FALSE}
+
+productivity_raw <- read_excel(file.choose(), sheet = "Physician Data")
+productivity_raw <- productivity_raw %>%
+  mutate(NPI = as.character(NPI))
+
+```
+
+
+```{r Global Variables, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Set variables for report
+# reporting_year <- dlgInput("Enter Reporting Year")$res
+# reporting_quarter <- toupper(dlgInput("Enter Reporting Year")$res)
+
+reporting_date <- max((scheduling_data_raw %>% filter(Appt.Status == "Arrived") %>% filter(Appt.DateYear <= Sys.Date()))$Appt.DateYear)
+reporting_year <- format(as.Date(reporting_date, format="%m/%d/%Y"), "%Y") ## Create year column
+reporting_quarter <- quarters(as.Date(reporting_date, format="%m/%d/%Y")) ## Create year column
+reporting_YearQtr <- as.yearqtr(reporting_date)
+
+data_quarters <- sort(unique((scheduling_data_raw %>% filter(Appt.Status == "Arrived")%>% filter(Appt.DateYear <= Sys.Date()))$Appt.YearQtr))
+
+# Specify campuses to include
+inc_sites <- c("NETWORK","MSM","MSH-MSDFP","ONCOLOGY","MSW","MSBI","MSUS","MSH- AMBULATORY CARE","MSDD")
+
+```
+
+
+```{r Monthly Volume Data, echo = FALSE, warning = FALSE, message = FALSE}
+
+monthly_vol <- scheduling_data_raw %>%
+  filter(Appt.Status == "Arrived") %>%
+  filter(Appt.DateYear <= Sys.Date()) %>%
+  filter(Appt.DateYear < Sys.Date()) %>%
+  mutate(Appt.MonNum = as.numeric(strftime(Appt.DateYear, format = "%m")),
+         Appt.Month = strftime(Appt.DateYear, format = "%b")) %>%
+  group_by(Campus, Campus.Specialty, Department, Appt.YearQtr, Appt.MonNum, Appt.Month, Visit.Method) %>%
+  summarise(monthly_vol = n()) 
+
+# # Merge with Rad Onc and Radiology Data
+# monthly_vol <- bind_rows(monthly_vol, rad_radOnc_data)
+
+monthly_vol <- monthly_vol %>%
+  # dplyr::select(-Month) %>%
+  pivot_wider(
+    names_from = Visit.Method, 
+    values_from = monthly_vol,
+    values_fill=list(monthly_vol=0)
+  ) %>%
+  mutate(Total = sum(`IN PERSON`, TELEHEALTH)) %>%
+  pivot_longer(
+    7:9,
+    names_to = "Visit.Method",
+    values_to = "monthly_vol"
+  )
+
+# monthly_vol <- monthly_vol %>%
+#   filter(Appt.Year >= as.numeric(todays_year)-1) 
+
+```
+
+
+```{r Department Zip Code Data, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Volume by Department Zip Code
+vol_zip_code <- scheduling_data_raw %>%
+  filter(Appt.Status == "Arrived") %>%
+  filter(Appt.DateYear < Sys.Date()) 
+
+vol_zip_code$dept_zip_code <- dept_zip_code_ref$`Address Zip Code`[match(vol_zip_code$Department, dept_zip_code_ref$`Department Name`)] 
+coordinates <- geocode_zip(vol_zip_code$dept_zip_code)
+vol_zip_code <- merge(vol_zip_code, coordinates, by.x = c("dept_zip_code"), by.y = c("zipcode"), all.x = TRUE)
+
+vol_zip_code <- vol_zip_code %>%
+  group_by(Campus.Specialty, Appt.YearQtr, dept_zip_code, lat, lng) %>%
+  summarise(total_vol = n()) %>%
+  mutate(dept_zip_code=factor(dept_zip_code, unique(dept_zip_code))) 
+  # mutate(pop=pop/1000000) 
+    
+```
+
+
+```{r Time to Appointment Data, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Wait Time Distribution by New vs. Established 
+wait_time_dist <- scheduling_data_raw %>%
+  filter(Wait.Time >= 0) %>%
+  mutate(group = case_when(Wait.Time >= 0 & Wait.Time <=7 ~ "0-7",
+                           Wait.Time >7 & Wait.Time <=14 ~ "8-14",
+                           Wait.Time >14 & Wait.Time <=30 ~ "15-30",
+                           TRUE ~ ">30")) %>%
+  group_by(Campus.Specialty, Appt.Made.YearQtr, New.PT3, Visit.Method, group) %>%
+  summarise(total = n())
+
+
+# Wait Time Distribution by Site
+wait_time_mshs <- scheduling_data_raw %>%
+  filter(Wait.Time >= 0) %>%
+  group_by(Campus.Specialty, Appt.Made.YearQtr, New.PT3) %>%
+  summarise(med_wait = median(Wait.Time, na.rm = TRUE)) 
+
+wait_time_site <- scheduling_data_raw %>%
+  filter(Wait.Time >= 0) %>%
+  group_by(Campus.Specialty, Appt.Made.YearQtr, Campus, New.PT3) %>%
+  summarise(med_wait = median(Wait.Time, na.rm = TRUE))
+
+# Wait Time and Productivity by NPI for current quarter
+wait_time_prov <- scheduling_data_raw %>%
+    filter(Appt.Made.YearQtr %in% c(data_quarters[length(data_quarters)])) %>%
+    filter(Wait.Time >= 0) %>%
+    filter(New.PT3 == "New") %>%
+    group_by(Campus.Specialty, Appt.Made.YearQtr, Provider, NPI) %>%
+    summarise(med_wait = as.numeric(median(Wait.Time, na.rm = TRUE)))
+
+wait_time_prov <- merge(wait_time_prov, productivity_raw[,c("NPI", paste0(reporting_year, " Calculated %"))])
+
+wait_time_prov$productivity <- productivity_raw$`2022 Calculated %`[match(wait_time_prov$NPI, productivity_raw$NPI)]
+
+```
+
+```{r MSHS Specialty Quarterly Average Weekday Volume Metrics, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Weekday Volume by Specialty, Site, Quarter 
+vol_weekday_quarter_mshs <- scheduling_data_raw %>%
+  filter(Appt.Status == "Arrived") %>%
+  filter(Appt.DateYear <= Sys.Date()) %>%
+  filter(Appt.Day %in% c("Mon","Tue","Wed","Thu","Fri")) %>%
+  group_by(Campus.Specialty, Appt.YearQtr, Appt.DateYear, Session) %>%
+  summarise(daily_vol = n()) %>%
+  pivot_wider(names_from = Session,
+              values_from = daily_vol) %>%
+  mutate(total = sum(AM, PM, na.rm = TRUE)) %>%
+    mutate(Metric = "daily_vol") %>%
+  group_by(Campus.Specialty, Appt.YearQtr, Metric) %>%
+  summarise(Day = round(mean(total, na.rm = TRUE)),
+            AM = round(mean(AM, na.rm = TRUE)),
+            PM = round(mean(PM, na.rm = TRUE))) %>%
+  pivot_longer(Day:PM,
+               names_to = "Breakdown",
+               values_to = "Value")
+
+vol_weekday_quarter_mshs <- merge(vol_weekday_quarter_mshs, room_count_summary_mshs)
+
+## Merge with Room Count and Visits/Room/Day Benchmark
+vol_var_weekday_quarter_mshs <- vol_weekday_quarter_mshs
+vol_var_weekday_quarter_mshs <- vol_var_weekday_quarter_mshs %>%
+  mutate(vol_target_var = ifelse(Breakdown == "Day",
+                             Value - (Benchmark*room_count),
+                             Value - ((Benchmark/2)*room_count))) %>%
+  mutate(visits_util = ifelse(Breakdown == "Day",
+                              Value/(Benchmark*room_count),
+                              Value/((Benchmark/2)*room_count))) %>%
+  dplyr::select(Appt.YearQtr, Campus.Specialty, room_count, Benchmark, Breakdown, vol_target_var, visits_util) %>%
+  pivot_longer(vol_target_var:visits_util,
+               names_to = "Metric",
+               values_to = "Value")
+
+
+# Quarterly average weekday utilization
+dur_util_weekday_quarter_mshs <- util_data_raw %>%
+  filter(Appt.Day %in% c("Mon","Tue","Wed","Thu","Fri")) %>%
+  pivot_longer(`08:00`:`20:00`,
+               names_to = "space_time",
+               values_to = "space_dur") %>%
+  group_by(Campus.Specialty, Appt.YearQtr, Appt.DateYear, Session) %>%
+  summarise(total_space_dur = sum(space_dur)) %>%
+  pivot_wider(names_from = Session,
+              values_from = total_space_dur) %>%
+  mutate(total = sum(AM, PM, na.rm = TRUE)) %>%
+  mutate(Metric = "dur_utilization") %>%
+  group_by(Campus.Specialty, Appt.YearQtr, Metric) %>%
+  summarise(Day = round(mean(total, na.rm = TRUE)),
+            AM = round(mean(AM, na.rm = TRUE)),
+            PM = round(mean(PM, na.rm = TRUE))) %>%
+  pivot_longer(Day:PM,
+               names_to = "Breakdown",
+               values_to = "Value")
+
+## Merge with Room Count and Visits/Room/Day Benchmark
+dur_util_weekday_quarter_mshs <- merge(dur_util_weekday_quarter_mshs, room_count_summary_mshs)
+dur_util_weekday_quarter_mshs <- dur_util_weekday_quarter_mshs %>%
+  mutate(dur_utilization = ifelse(Breakdown == "Day",
+                             Value/(8*60*room_count),
+                             Value/(4*60*room_count))) %>%
+  dplyr::select(Appt.YearQtr, Campus.Specialty, room_count, Benchmark, Metric, Breakdown, dur_utilization) %>%
+  rename(Value = dur_utilization)
+
+
+
+
+# Compile all reporting quarter metrics -------------------------------------------------
+weekday_metrics_merged_mshs <- bind_rows(dur_util_weekday_quarter_mshs, vol_weekday_quarter_mshs, vol_var_weekday_quarter_mshs)
+
+```
+
+
+```{r Site Specialty Quarterly Metrics, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Quarterly average weekday daily volume, volume target variance, utilization by visits/room/day benchmark
+vol_weekday_quarter_site <- scheduling_data_raw %>%
+  filter(Appt.Status == "Arrived") %>%
+  filter(Appt.Day %in% c("Mon","Tue","Wed","Thu","Fri")) %>%
+  group_by(Campus.Specialty, Campus, Appt.YearQtr, Appt.DateYear, Session) %>%
+  summarise(daily_vol = n()) %>%
+  pivot_wider(names_from = Session,
+              values_from = daily_vol) %>%
+  mutate(total = sum(AM, PM, na.rm = TRUE)) %>%
+    mutate(Metric = "daily_vol") %>%
+  group_by(Campus.Specialty, Campus, Appt.YearQtr, Metric) %>%
+  summarise(Day = round(mean(total, na.rm = TRUE)),
+            AM = round(mean(AM, na.rm = TRUE)),
+            PM = round(mean(PM, na.rm = TRUE))) %>%
+  pivot_longer(Day:PM,
+               names_to = "Breakdown",
+               values_to = "Value") 
+
+vol_weekday_quarter_site <- merge(vol_weekday_quarter_site, room_count_summary_site)
+
+## Merge with Room Count and Visits/Room/Day Benchmark
+vol_var_weekday_quarter_site <- vol_weekday_quarter_site
+vol_var_weekday_quarter_site <- vol_var_weekday_quarter_site %>%
+  mutate(vol_target_var = ifelse(Breakdown == "Day",
+                             round(Value - (Benchmark*room_count),0),
+                             round(Value - ((Benchmark/2)*room_count),0))) %>%
+  mutate(visits_util = ifelse(Breakdown == "Day",
+                              round(Value/(Benchmark*room_count),2),
+                              round(Value/((Benchmark/2)*room_count),2))) %>%
+  dplyr::select(Appt.YearQtr, Campus.Specialty, Campus, room_count, Benchmark, Breakdown, vol_target_var, visits_util) %>%
+  pivot_longer(vol_target_var:visits_util,
+               names_to = "Metric",
+               values_to = "Value") 
+  
+  
+# Quarterly average weekday utilization 
+dur_util_weekday_quarter_site <- util_data_raw %>%
+  filter(Appt.Day %in% c("Mon","Tue","Wed","Thu","Fri")) %>%
+  pivot_longer(`08:00`:`20:00`,
+               names_to = "space_time",
+               values_to = "space_dur") %>%
+  group_by(Campus.Specialty, Campus, Appt.YearQtr, Appt.DateYear, Session) %>%
+  summarise(total_space_dur = sum(space_dur)) %>%
+  pivot_wider(names_from = Session,
+              values_from = total_space_dur) %>%
+  mutate(total = sum(AM, PM, na.rm = TRUE)) %>%
+  mutate(Metric = "dur_utilization") %>%
+  group_by(Campus.Specialty, Campus, Appt.YearQtr, Metric) %>%
+  summarise(Day = round(mean(total, na.rm = TRUE)),
+            AM = round(mean(AM, na.rm = TRUE)),
+            PM = round(mean(PM, na.rm = TRUE))) %>%
+  pivot_longer(Day:PM,
+               names_to = "Breakdown",
+               values_to = "Value") 
+
+## Merge with Room Count and Visits/Room/Day Benchmark
+dur_util_weekday_quarter_site <- merge(dur_util_weekday_quarter_site, room_count_summary_site, all.x = TRUE)
+dur_util_weekday_quarter_site <-dur_util_weekday_quarter_site  %>%
+  mutate(dur_utilization = ifelse(Breakdown == "Day",
+                             round(Value/(8*60*room_count),2),
+                             round(Value/(4*60*room_count),2))) %>%
+  dplyr::select(Appt.YearQtr, Campus.Specialty, Campus, room_count, Benchmark, Metric, Breakdown, dur_utilization) %>%
+  rename(Value = dur_utilization)
+
+
+# Compile all reporting quarter metrics -------------------------------------------------
+weekday_metrics_merged_site <- bind_rows(dur_util_weekday_quarter_site, vol_weekday_quarter_site, vol_var_weekday_quarter_site)
+
+```
+
+
+```{r Site Utilization Metrics Table, echo = FALSE, warning = FALSE, message = FALSE}
+
+specialty <- unique(weekday_metrics_merged_mshs$Campus.Specialty)
+
+weekday_util_site_tbl <- weekday_metrics_merged_site %>%
+  filter(Appt.YearQtr %in% c(data_quarters[length(data_quarters)], data_quarters[length(data_quarters)-1], data_quarters[length(data_quarters)-4])) %>%
+  arrange(desc(Appt.YearQtr)) %>%
+  arrange(Metric, Breakdown, Campus) %>%
+  group_by(Metric, Breakdown, Campus) %>%
+  mutate(prior_value = shift(Value)) %>%
+  mutate(prior_value = ifelse(is.na(prior_value), Value, prior_value)) %>%
+  mutate(prior_value = ifelse(is.na(prior_value), Value, shift(prior_value))) %>%
+  mutate(diff = ifelse(is.na(prior_value), Value, prior_value - Value)) %>%
+  dplyr::select(-c(Value, prior_value)) %>%
+  rename(Value = diff) %>%
+  pivot_wider(names_from = Metric:Breakdown,
+              values_from = Value) %>%
+  mutate(Appt.YearQtr = as.character(as.yearqtr(Appt.YearQtr))) %>%
+  dplyr::select(Campus, Appt.YearQtr, room_count, Benchmark, 
+                daily_vol_Day, vol_target_var_Day, visits_util_Day, dur_utilization_Day, 
+                daily_vol_AM, vol_target_var_AM, vol_target_var_AM, visits_util_AM, dur_utilization_AM,
+                daily_vol_PM, vol_target_var_PM, vol_target_var_PM, visits_util_PM, dur_utilization_PM) 
+
+
+weekday_util_site_tbl$Appt.YearQtr[which(weekday_util_site_tbl$Appt.YearQtr == data_quarters[length(data_quarters)-1])] <- paste0("Variance from ",data_quarters[length(data_quarters)-1])
+weekday_util_site_tbl$Appt.YearQtr[which(weekday_util_site_tbl$Appt.YearQtr == data_quarters[length(data_quarters)-4])] <- paste0("Variance from ",data_quarters[length(data_quarters)-4])
+
+```
+
+
+```{r Reactable Theme, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Flextable Custom Theme
+theme_design <- function(x) {
+  x <- border_remove(x)
+  x <- fontsize(x, size = 10, part = "all")
+  x <- font(x, fontname = "Calibri", part = "all")
+  x <- align(x, align = "center", part = "all")
+  x <- align(x, align = "left", part = "footer")
+  x <- bold(x, bold = TRUE, part = "header")
+  x <- color(x, color = "white", part = "header")
+  x <- padding(x, padding = 6, part = "all")
+  x <- border_inner_h(x, border = fp_border_default(width = 1, color = "white"), part="all")
+  x <- border_inner_v(x, border =fp_border_default(width = 4, color = "white"), part="all")
+  x <- set_table_properties(x, layout = "fixed")
+  x
+}
+
+# Heat Map Conditional Formatting Example 
+# colourer <- col_numeric(
+#   palette = c("wheat", "red"),
+#   domain = c(0, 1))
+# 
+# bg(ft_2, 
+#     i = 1:2,
+#     j = c("Sepal.Length", "Sepal.Width",
+#           "Petal.Length", "Petal.Width"),
+#     bg = colourer)
+```
+
+
+```{r Monthly Volume Graph Output, echo = FALSE, warning = FALSE, message = FALSE}
+
+dept_monthly_vol_function <- function(department){
+  
+  dept_vol <- monthly_vol %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Visit.Method != "Total") %>%
+    filter(Appt.YearQtr %in% tail(data_quarters,5)) %>%
+    mutate(Appt.YearQtr = as.character(Appt.YearQtr)) %>%
+    group_by(Campus.Specialty, Appt.YearQtr, Appt.Month, Visit.Method) %>%
+    summarise(monthly_vol = sum(monthly_vol)) %>%
+    mutate(perc = percent(monthly_vol/sum(monthly_vol),0))
+  
+  
+  monthOptions <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+  
+  ggplot(dept_vol, aes(x= factor(Appt.Month, levels = monthOptions),
+                       y=monthly_vol, group=Visit.Method, fill=Visit.Method))+
+    geom_bar(position="stack",stat="identity", width=0.7)+
+    facet_grid(.~Appt.YearQtr, scales = "free", space = "free_x") + 
+    scale_fill_manual(values=c("#212070","#d80b8c","#00aeef","#7f7f7f","#ffc000","#7030a0","#5753d0","#5cd3ff"))+
+    scale_y_continuous(limits=c(0, max((dept_vol %>% group_by(Appt.YearQtr, Appt.Month) %>% summarise(total = sum(monthly_vol)))$total)*1.1), 
+                       labels = scales::number_format(accuracy = 1),
+                       expand = c(0,0))+
+    labs(title = "Ambulatory Visit Volume",
+         subtitle = department,
+         x = NULL, y = NULL, fill = "Site")+
+    theme_bw()+
+    theme(plot.title = element_text(hjust=0.5, face = "bold", size = 14),
+            plot.subtitle = element_text(hjust=0.5, size = 12, face = "italic"),
+            legend.position = "bottom",
+            legend.text = element_text(size="8"),
+            legend.direction = "horizontal",
+            legend.title = element_blank(),
+            axis.title = element_blank(),
+            axis.text = element_text(size="10"),
+            axis.title.x = element_blank(),
+            axis.line = element_line(size = 0.3, colour = "black"))+
+    geom_text(aes(label=paste0(prettyNum(monthly_vol, big.mark = ','),"\n","(",perc,")")), color="white", 
+                size=2.5, fontface="bold", position = position_stack(vjust = 0.5))+
+    stat_summary(fun.y = sum, vjust = -1, aes(label=ifelse(..y.. == 0,"",prettyNum(..y.., big.mark = ',')), group = Appt.Month), geom="text", color="black", 
+                 size=3.5)+
+    guides(fill = guide_legend(nrow = 1))
+    
+}
+
+
+```
+
+
+```{r Monthly Volume Site Breakout Output, echo = FALSE, warning = FALSE, message = FALSE}
+
+theme_new_line <- function(base_size = 12,
+                           base_family = "Calibri",
+                           base_line_size = base_size / 170,
+                           base_rect_size = base_size / 170) {
+  theme_bw(
+    base_size = base_size,
+    base_family = base_family,
+    base_line_size = base_line_size
+  ) %+replace%
+    theme(plot.title = element_text(hjust=0.5, face = "bold", size = 20),
+          plot.subtitle = element_text(hjust=0.5,vjust=-1, size = 16, face = "italic"),
+          plot.caption = element_text(hjust = 0, size = 14, face = "italic"),
+          legend.position = "top",
+          legend.text = element_text(size="12"),
+          legend.direction = "horizontal",
+          legend.key.size = unit(1.0,"cm"),
+          legend.title = element_blank(),
+          axis.title = element_text(size="14"),
+          axis.text = element_text(size="12"),
+          axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          panel.grid.minor = element_blank(),
+          axis.line = element_line(size = 0.3, colour = "black"),
+          plot.margin = margin(10,10,10,10))
+}
+
+deptSite_monthly_vol_function_1 <- function(department){
+  
+  # department <- "ENT-Otolaryngology"
+  
+  monthOptions <- c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+
+vol_trending <- monthly_vol %>%
+  filter(Campus.Specialty == department) %>%
+  filter(Visit.Method == "Total") %>%
+  mutate(Appt.Year = format(Appt.YearQtr, "%Y")) %>%
+  filter(Appt.Year %in% c(reporting_year, as.character(as.numeric(reporting_year)-1))) %>%
+  group_by(Campus, Appt.Year, Appt.Month) %>%
+  summarise(monthly_vol = sum(monthly_vol)) %>%
+  pivot_wider(names_from = Appt.Year,
+              values_from = monthly_vol) %>%
+  arrange(factor(Appt.Month, levels = monthOptions)) %>%
+  arrange(Campus)
+
+vol_trending$perc_change <- round((vol_trending$`2022` - vol_trending$`2021`)/vol_trending$`2021`,2)*100
+vol_trending <- vol_trending %>%
+  pivot_longer(3:5,
+               names_to = "variable",
+               values_to = "value") %>%
+  mutate(status = ifelse(variable == "perc_change","% Variance","Total Visits"))
+
+
+vol_trending$Appt.Month <- factor(vol_trending$Appt.Month, levels=monthOptions)
+vol_trending$status <- factor(vol_trending$status, levels=c("Total Visits","% Variance"))
+# vol_trending <- vol_trending %>% filter(Campus %in% c("MSBI","MSH- AMBULATORY CARE","MSH-MSDFP","MSM","MSUS","MSW"))
+# 
+# ggplot(vol_trending, aes_string(x = "Appt.Month", y = "value")) +  
+#   facet_grid(status~Campus, scales="free_y", switch = "y") + 
+#   geom_line(data = subset(vol_trending, status == "Total Visits"), aes(color = variable, group = variable), na.rm = TRUE, show_guide = TRUE)+
+#   geom_point(data = subset(vol_trending, status == "Total Visits"), aes(color = variable, group = variable), size = 2, na.rm = TRUE, show_guide = TRUE)+
+#   # geom_col(data = subset(vol_trending, status == "bar"), aes(fill = ifelse(value > 0, "#ff3300", "#00b800")),  show_guide = TRUE)+
+#   geom_bar(data = subset(vol_trending, status == "% Variance"), aes(fill=(value>0)), na.rm = TRUE, show_guide = FALSE, show.legend = FALSE, stat="identity")+
+#   scale_fill_manual(values = c('#ff3300', '#00b800'))+
+#   scale_color_manual(name = NULL, values =  c("#212070","#d80b8c"))+
+#   # geom_text(data = subset(vol_trending, status == "Total Visits"), aes(label=prettyNum(value,',')), color="black",
+#   #           fontface="bold",hjust=-.25, nudge_y = 2, nudge_x = -.1, size=3)+
+#   geom_text(data = subset(vol_trending, status == "% Variance"), aes(label=paste0(value,"%")), color="black", 
+#                 size=3, fontface="bold", position = position_stack(vjust = .5))+
+#   force_panelsizes(rows = c(1, 0.6))+
+#   theme_bw()+
+#   theme(strip.text.y = element_text(size = 10, color = "black", face = "bold"),
+#         strip.text.x = element_text(size = 10, color = "black", face = "bold"),
+#         strip.background = element_rect(fill=NA),
+#         legend.position = "top")+
+#   labs(x = "Month", y = "")+
+#   guides(fill=FALSE) 
+       
+       
+data1 <- vol_trending %>% filter(Campus %in% c("MSBI","MSH- AMBULATORY CARE","MSH-MSDFP"))
+
+ggplot(data1, aes_string(x = "Appt.Month", y = "value")) +
+  facet_grid(status~Campus, scales="free_y", switch = "y") +
+  geom_line(data = subset(data1, status == "Total Visits"), aes(color = variable, group = variable), na.rm = TRUE, show_guide = TRUE)+
+  geom_point(data = subset(data1, status == "Total Visits"), aes(color = variable, group = variable), size = 2, na.rm = TRUE, show_guide = TRUE)+
+  # geom_col(data = subset(data1, status == "bar"), aes(fill = ifelse(value > 0, "#ff3300", "#00b800")),  show_guide = TRUE)+
+  geom_bar(data = subset(data1, status == "% Variance"), aes(fill=(value>0)), na.rm = TRUE, show_guide = FALSE, show.legend = FALSE, stat="identity")+
+  scale_fill_manual(values = c('#ff3300', '#00b800'))+
+  scale_color_manual(name = NULL, values =  c("#212070","#d80b8c"))+
+  # geom_text(data = subset(data1, status == "Total Visits"), aes(label=prettyNum(value,',')), color="black",
+  #           fontface="bold",hjust=-.25, nudge_y = 2, nudge_x = -.1, size=3)+
+  geom_text(data = subset(data1, status == "% Variance"), aes(label=paste0(value,"%")), color="black",
+                size=3, fontface="bold", position = position_stack(vjust = .5))+
+  force_panelsizes(rows = c(1, 0.6))+
+  theme_bw()+
+  theme(strip.text.y = element_text(size = 10, color = "black", face = "bold"),
+        strip.text.x = element_text(size = 10, color = "black", face = "bold"),
+        strip.background = element_rect(fill="#e5e6e5"),
+        legend.position = "top")+
+  labs(x = "", y = "")+
+  guides(fill=FALSE,color=FALSE)
+
+
+}
+
+
+deptSite_monthly_vol_function_2 <- function(department){
+  # 
+  # department <- "ENT-Otolaryngology"
+  
+  monthOptions <- c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+
+vol_trending <- monthly_vol %>%
+  filter(Campus.Specialty == department) %>%
+  filter(Visit.Method == "Total") %>%
+  mutate(Appt.Year = format(Appt.YearQtr, "%Y")) %>%
+  filter(Appt.Year %in% c(reporting_year, as.character(as.numeric(reporting_year)-1))) %>%
+  group_by(Campus, Appt.Year, Appt.Month) %>%
+  summarise(monthly_vol = sum(monthly_vol)) %>%
+  pivot_wider(names_from = Appt.Year,
+              values_from = monthly_vol) %>%
+  arrange(factor(Appt.Month, levels = monthOptions)) %>%
+  arrange(Campus)
+
+vol_trending$perc_change <- round((vol_trending$`2022` - vol_trending$`2021`)/vol_trending$`2021`,2)*100
+vol_trending <- vol_trending %>%
+  pivot_longer(3:5,
+               names_to = "variable",
+               values_to = "value") %>%
+  mutate(status = ifelse(variable == "perc_change","% Variance","Total Visits"))
+
+
+vol_trending$Appt.Month <- factor(vol_trending$Appt.Month, levels=monthOptions)
+vol_trending$status <- factor(vol_trending$status, levels=c("Total Visits","% Variance"))
+
+data2 <- vol_trending %>% filter(Campus %in% c("MSM","MSUS","MSW"))
+
+ggplot(data2, aes_string(x = "Appt.Month", y = "value")) +
+  facet_grid(status~Campus, scales="free_y", switch = "y") +
+  geom_line(data = subset(data2, status == "Total Visits"), aes(color = variable, group = variable), na.rm = TRUE, show_guide = TRUE)+
+  geom_point(data = subset(data2, status == "Total Visits"), aes(color = variable, group = variable), size = 2, na.rm = TRUE, show_guide = TRUE)+
+  # geom_col(data = subset(data2, status == "bar"), aes(fill = ifelse(value > 0, "#ff3300", "#00b800")),  show_guide = TRUE)+
+  geom_bar(data = subset(data2, status == "% Variance"), aes(fill=(value>0)), na.rm = TRUE, show_guide = FALSE, show.legend = FALSE, stat="identity")+
+  scale_fill_manual(values = c('#ff3300', '#00b800'))+
+  scale_color_manual(name = NULL, values =  c("#212070","#d80b8c"))+
+  # geom_text(data = subset(data2, status == "Total Visits"), aes(label=prettyNum(value,',')), color="black",
+  #           fontface="bold",hjust=-.25, nudge_y = 2, nudge_x = -.1, size=3)+
+  geom_text(data = subset(data2, status == "% Variance"), aes(label=paste0(value,"%")), color="black",
+                size=3, fontface="bold", position = position_stack(vjust = .5))+
+  force_panelsizes(rows = c(1, 0.6))+
+  theme_bw()+
+  theme(strip.text.y = element_text(size = 10, color = "black", face = "bold"),
+        strip.text.x = element_text(size = 10, color = "black", face = "bold"),
+        strip.background = element_rect(fill="#e5e6e5"),
+        legend.position = "top")+
+  labs(x = "", y = "")+
+  guides(fill=FALSE, color=FALSE)
+
+}
+
+```
+
+
+```{r Monthly Volume Graph Key Takeaways, echo = FALSE, warning = FALSE, message = FALSE}
+
+dept_monthly_vol_takeaway <- function(department){
+  
+  qrt_vol_var <- monthly_vol %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Visit.Method == "Total") %>%
+    filter(Appt.YearQtr %in% c(data_quarters[length(data_quarters)], data_quarters[length(data_quarters)-1], data_quarters[length(data_quarters)-4])) %>%
+    mutate(Appt.YearQtr = as.character(Appt.YearQtr)) %>%
+    group_by(Appt.YearQtr) %>%
+    summarise(total = sum(monthly_vol)) %>%
+    pivot_wider(names_from = Appt.YearQtr,
+                values_from = total) %>%
+    mutate(var_last_qrt = percent((.[[1]]/.[[2]])-1,0),
+           var_last_yr = percent((.[[1]]/.[[3]])-1,0))
+  
+  qrt_vol <- as.character(prettyNum(qrt_vol_var[[1]], big.mark = ','))
+  var_last_qrt <- as.character(qrt_vol_var[[4]])
+  var_last_yr <- as.character(qrt_vol_var[[5]])
+  
+  avg_monthly <- monthly_vol %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Visit.Method == "Total") %>%
+    filter(Appt.YearQtr %in% c(data_quarters[length(data_quarters)])) %>%
+    group_by(Campus.Specialty, Appt.Month) %>%
+    summarise(total = sum(monthly_vol)) 
+  
+  avg_month <- as.character(prettyNum(round(mean(avg_monthly$total)), big.mark = ','))
+  
+  visit_method_vol <- monthly_vol %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Appt.YearQtr %in% c(data_quarters[length(data_quarters)])) %>%
+    filter(Visit.Method != "Total") %>%
+    group_by(Campus.Specialty, Visit.Method) %>%
+    summarise(total = sum(monthly_vol)) %>%
+    ungroup() %>%
+    group_by(Campus.Specialty) %>%
+    mutate(perc = percent(total/sum(total),0))
+  
+  in_person <- as.character(visit_method_vol$perc[which(visit_method_vol$Visit.Method == "IN PERSON")])
+  
+  site_vol <- monthly_vol %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Visit.Method == "Total") %>%
+    filter(Appt.YearQtr %in% c(data_quarters[length(data_quarters)])) %>%
+    mutate(Appt.YearQtr = as.character(Appt.YearQtr)) %>%
+    group_by(Campus.Specialty, Appt.YearQtr, Campus) %>%
+    summarise(monthly_vol = sum(monthly_vol)) %>%
+    group_by(Campus.Specialty, Appt.YearQtr) %>%
+    mutate(perc = percent(monthly_vol/sum(monthly_vol),0)) %>%
+    filter(perc == max(perc))
+  
+  max_vol <- as.character(prettyNum(site_vol$monthly_vol, big.mark = ','))
+  max_vol_perc <- as.character(site_vol$perc, big.mark = ',')
+  max_site <- as.character(site_vol$Campus)
+  
+  key_list <- list(in_person, qrt_vol, avg_month, var_last_qrt, var_last_yr, max_site, max_vol, max_vol_perc)
+  
+  return(key_list)
+}
+
+```
+
+
+```{r Monthly Volume Heat Map Graph Output, echo = FALSE, warning = FALSE, message = FALSE}
+
+dept_heat_map_function <- function(department){
+  
+  # department <- i
+  dept_vol_zip_code <- vol_zip_code %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Appt.YearQtr %in% c(data_quarters[length(data_quarters)])) 
+  
+  # Create a color palette with handmade bins.
+      mybins <- round(seq(0 , round_any(max(dept_vol_zip_code$total_vol), as.numeric(str_count(max(dept_vol_zip_code$total_vol))), f = ceiling) , length.out=5),0)
+      mypalette <- colorBin(palette=MountSinai_palettes$pinkBlue, domain=quakes$mag, na.color="transparent", bins=mybins)
+      
+      # Prepare the text for the tooltip:
+      mytext <- paste(
+        "Total Visit Volume: ", dept_vol_zip_code$total_vol, "<br/>") %>%
+        lapply(htmltools::HTML)
+      
+      icons <- awesomeIcons(
+      icon = 'hospital-o',
+      lib = 'fa',
+      iconColor = "white",
+      markerColor = "lightgray")
+      
+      map <-
+        leaflet(data = dept_vol_zip_code) %>%
+        addProviderTiles("CartoDB.Positron", options = providerTileOptions(noWrap = TRUE)) %>%
+        setView(lng=-73.99181, lat=40.76719, zoom = 12) %>%
+        addCircleMarkers(lng = ~lng, lat = ~lat, 
+                         fillColor = ~mypalette(total_vol), fillOpacity = 0.9, color="white", stroke=FALSE,
+                         # color = ~groupColors(SITE),
+                         # group = ~SITE, 
+                         radius= 21,
+                         # label = mytext,
+                         # labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "18px", direction = "auto")
+                         ) %>%
+        addLabelOnlyMarkers(~lng, ~lat, label =  ~prettyNum(total_vol, big.mark = ','), 
+                      labelOptions = labelOptions(noHide = T, direction = 'center', textOnly = T, textsize = "22px",
+                                                  style = list("font-weight" = "bold", padding = "3px 8px"))) %>%
+        leaflet::addLegend(pal=mypalette, values=~total_vol, opacity=0.9, title = "Total Visit Volume", position = "topright")
+      
+      
+      map <- map %>%
+      addAwesomeMarkers(
+        lng=-73.943324, lat=40.79171,
+        # label='MSH',
+        label=NULL,
+        icon = icons,
+        labelOptions = labelOptions(noHide = T, textsize='14px', textOnly = TRUE, direction = 'right',
+                                    style=list('font-weight'= 'bold'))) %>%
+      addAwesomeMarkers(
+        lng=-73.92606, lat=40.77084,
+        # label='MSQ',
+        label=NULL,
+        icon = icons,
+        labelOptions = labelOptions(noHide = T, textsize='14px', textOnly = TRUE, direction = 'right',
+                                    style=list('font-weight'= 'bold'))) %>%
+      addAwesomeMarkers(
+        lng=-73.98840, lat=40.73139,
+        # label='MSUS',
+        label=NULL,
+        icon = icons,
+        labelOptions = labelOptions(noHide = T, textsize='14px', textOnly = TRUE, direction = 'right',
+                                    style=list('font-weight'= 'bold'))) %>%
+      addAwesomeMarkers(
+        lng=-73.99181, lat=40.76719,
+        # label='MSW',
+        label=NULL,
+        icon = icons,
+        labelOptions = labelOptions(noHide = T, textsize='14px', textOnly = TRUE, direction = 'right',
+                                    style=list('font-weight'= 'bold'))) %>%
+      addAwesomeMarkers(
+        lng=-73.96316, lat=40.79834,
+        # label="MSM",
+        label=NULL,
+        icon = icons,
+        labelOptions = labelOptions(noHide = T, textsize='14px', textOnly = TRUE, direction = 'right',
+                                    style=list('font-weight'= 'bold')))
+       
+      
+      # Save as a png
+      saveWidget(map, "vol_heat_map.html", selfcontained = FALSE)
+      webshot("vol_heat_map.html", file = "vol_heat_map.png", cliprect = "viewport")
+              #  c(0, 200, 1000, 1400)
+      
+      # vol_heat_map_graph <- readPNG("vol_heat_map.png")
+      # 
+      # return(vol_heat_map_graph)
+}
+
+```
+
+
+```{r Time to Appointment Distribution Table Output, echo = FALSE, warning = FALSE, message = FALSE}
+
+overall_time_to_appt_dist_function <- function(department){
+  
+  wait_time <- wait_time_dist %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Appt.Made.YearQtr %in% c(data_quarters[length(data_quarters)])) %>%
+    group_by(New.PT3, Visit.Method) %>%
+    mutate(perc = formattable::percent(total/sum(total),0))
+  
+  graph <- ggplot(wait_time, aes(x=factor(group, levels=c(">30","15-30","8-14","0-7")), y=perc, fill = New.PT3)) +
+    geom_col(width = 0.8)+
+    scale_y_continuous(limits=c(0, 1.1),
+                       labels = scales::percent_format(accuracy = 1),
+                       expand = c(0,0))+
+    coord_flip()+
+    facet_grid(New.PT3 ~ Visit.Method, scales = "free_y", switch = "y")+
+    scale_fill_manual(values=c("#212070","#d80b8c"))+
+    labs(title = "Time to Appointment Horizon",
+         subtitle = department,
+         x = NULL, y = "% of Total Appointments Scheduled", fill = NULL)+
+    theme_bw()+
+    theme(plot.title = element_text(hjust=0.5, face = "bold", size = 14),
+            plot.subtitle = element_text(hjust=0.5, size = 12, face = "italic"),
+            legend.position = "bottom",
+            legend.text = element_text(size="8"),
+            legend.direction = "horizontal",
+            legend.title = element_blank(),
+            axis.title = element_text(size="8"),
+            axis.text = element_text(size="8"),
+            # axis.title.x = element_blank(),
+            axis.line = element_line(size = 0.3, colour = "black"))+
+    geom_text(aes(label= paste0(perc, " (", prettyNum(total, big.mark = ','),")")), hjust = -.1, vjust=.5, color="black", size=3, font.face = "bold")
+  
+  return(graph)
+  
+}
+
+```
+
+
+```{r Time to Appointment Table Output, echo = FALSE, warning = FALSE, message = FALSE}
+
+site_time_to_appt_function <- function(department){
+  
+  wait_time <- wait_time_site %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Appt.Made.YearQtr %in% c(data_quarters[length(data_quarters)])) %>%
+    mutate(med_wait = as.numeric(med_wait)) %>%
+    pivot_wider(names_from = New.PT3,
+                values_from = med_wait,
+                values_fill = 0) %>%
+    pivot_longer(4:5,
+                 names_to = "New.PT3",
+                 values_to = "med_wait")
+  
+  graph <- ggplot(wait_time, aes(x=reorder(Campus, med_wait), y=med_wait, group = New.PT3, fill = New.PT3)) +
+    geom_col(width = 0.8)+
+    geom_hline(yintercept = 14, linetype="dashed", color = "red", size = 1)+
+    coord_flip()+
+    facet_grid(. ~ New.PT3)+
+    scale_y_continuous(limits=c(0, max(wait_time$med_wait)*1.1), 
+                       # labels = scales::number_format(accuracy = 1),
+                       expand = c(0,0))+
+    scale_fill_manual(values=c("#212070","#d80b8c"))+
+    labs(title = "Time to Appointment by Site",
+         subtitle = department,
+         x = NULL, y = "Median Days", fill = "Site",
+         caption = "*Target: 14 days")+
+    theme_bw()+
+    theme(plot.title = element_text(hjust=0.5, face = "bold", size = 14),
+          plot.subtitle = element_text(hjust=0.5, size = 12, face = "italic"),
+          plot.caption = element_text(size = 8, face = "bold.italic", color = "red"),
+            legend.position = "bottom",
+            legend.text = element_text(size="8"),
+            legend.direction = "horizontal",
+            legend.title = element_blank(),
+            axis.title = element_text(size="8"),
+            axis.text = element_text(size="8"),
+            # axis.title.x = element_blank(),
+            axis.line = element_line(size = 0.3, colour = "black"))+
+    geom_text(aes(label= ifelse(med_wait == 0, "", med_wait)), hjust = -.1, vjust=.5, color="black", size=3, font.face = "bold")
+  
+  return(graph)
+    
+}
+
+```
+
+
+```{r Access Graph Key Takeaways, echo = FALSE, warning = FALSE, message = FALSE}
+
+dept_access_takeaway <- function(department){
+  
+  wait_time_new <- wait_time_dist %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Appt.Made.YearQtr %in% c(data_quarters[length(data_quarters)])) %>%
+    group_by(New.PT3, Visit.Method) %>%
+    mutate(perc = formattable::percent(total/sum(total),0))
+  
+  new_pt_vol <- as.character(prettyNum(sum((wait_time_new %>% filter(New.PT3 == "New"))$total), big.mark = ','))
+  new_pt_vol_perc <- as.character(percent((sum((wait_time_new %>% filter(New.PT3 == "New"))$total) / sum((wait_time_new$total))),0))
+  new_inPerson_14days <- as.character(sum((wait_time_new %>% filter(New.PT3 == "New" & Visit.Method == "IN PERSON" & group %in% c("0-7","8-14")))$perc))
+  new_tele_14days <- as.character(sum((wait_time_new %>% filter(New.PT3 == "New" & Visit.Method == "TELEHEALTH" & group %in% c("0-7","8-14")))$perc))
+  
+  dept_med_waitTime <- as.character(as.numeric((scheduling_data_raw %>%
+                                                  filter(Campus.Specialty == department) %>%
+                                                  filter(Appt.Made.YearQtr %in% c(data_quarters[length(data_quarters)])) %>%
+                                                  filter(Wait.Time >= 0) %>%
+                                                  filter(New.PT3 == "New") %>%
+                                                  group_by(Campus.Specialty) %>%
+                                                  summarise(med_waitTime = median(Wait.Time)))$med_waitTime))
+  
+  key_list <- list(new_pt_vol, new_pt_vol_perc, new_inPerson_14days, new_tele_14days, dept_med_waitTime)
+  
+  return(key_list)
+}
+
+```
+
+
+```{r Productivity and Wait Time Graph Output, echo = FALSE, warning = FALSE, message = FALSE}
+
+productivity_scatter_function <- function(department){
+  
+  waitTime_prod_output <- wait_time_prov %>%
+    filter(Campus.Specialty == department) %>%
+    mutate(productivity = round(.[[6]],2)*100) %>%
+    mutate(productivity_group = case_when(productivity < 50 ~ "0-49%",
+                                       productivity >=50 & productivity <75 ~ "50-74%",
+                                       productivity >=75 & productivity <=100 ~ "75-100%",
+                                       TRUE ~ ">100%")) 
+  
+  ggplot(waitTime_prod_output, aes(x=productivity, y=med_wait, color=productivity_group))+
+    geom_point(size = 4, alpha = 0.6)+
+    scale_color_manual(values=c("#212070","#d80b8c","#00aeef","#7f7f7f","#ffc000","#7030a0","#5753d0","#5cd3ff"))+
+    labs(title = "Physician Productivity vs. Time to Appointment",
+         x = "2022 YTD Productivity",
+         y = "Median Time to Appointment (New)",
+         subtitle = department)+
+    # scale_y_continuous(limits = c(0,max(1,max(avg_util_hour_mshs$avg_perc_util)*1.1)), 
+    #                    breaks = seq(0,max(1,max(avg_util_hour_mshs$avg_perc_util)*1.1), by = .1),
+    #                    expand=c(0,0), labels = scales::percent_format(accuracy = 1))+
+    theme_bw()+
+      theme(plot.title = element_text(hjust=0.5, face = "bold", size = 14),
+            plot.subtitle = element_text(hjust=0.5, size = 12, face = "italic"),
+            legend.position = "bottom",
+            legend.text = element_text(size="10"),
+            legend.direction = "horizontal",
+            # legend.key.size = unit(1.0,"cm"),
+            legend.title = element_blank(),
+            axis.title = element_text(size="10"),
+            axis.text = element_text(size="10"),
+            axis.line = element_line(size = 0.3, colour = "black"))+
+    guides(colour = guide_legend(nrow = 1))
+  
+}
+
+```
+
+
+```{r Productivity and Wait Time Table Output, echo = FALSE, warning = FALSE, message = FALSE}
+
+productivity_table_function <- function(department){
+  
+  waitTime_prod_summary <- wait_time_prov %>%
+    filter(Campus.Specialty == department) %>%
+    mutate(productivity = round(.[[6]],2)*100) %>%
+    mutate(productivity = round(productivity,2)*100) %>%
+    mutate(waitTime_group = case_when(med_wait >= 0 & med_wait <=7 ~ "0-7",
+                           med_wait >7 & med_wait <=14 ~ "8-14",
+                           med_wait >14 & med_wait <=30 ~ "15-30",
+                           TRUE ~ ">30"),
+           productivity_group = case_when(productivity < 50 ~ "0-49%",
+                           productivity >=50 & productivity <75 ~ "50-74%",
+                           productivity >=75 & productivity <=100 ~ "75-100%",
+                           TRUE ~ ">100%")) %>%
+    filter(!is.na(productivity)) %>%
+    group_by(waitTime_group, productivity_group) %>%
+    summarise(total = n()) %>%
+    pivot_wider(names_from = productivity_group,
+                values_from = total,
+                values_fill = 0)
+  
+  nms <- c("waitTime_group", "0-49%","50-74%","75-100%",">100%")
+  Missing <- setdiff(nms, names(waitTime_prod_summary))  # Find names of missing columns
+  waitTime_prod_summary[Missing] <- 0                    # Add them, filled with '0's
+  waitTime_prod_summary <- waitTime_prod_summary[nms] 
+
+  waitTime_prod_summary <- waitTime_prod_summary %>%  
+    dplyr::select(waitTime_group, "0-49%","50-74%","75-100%",">100%") %>%
+    arrange(factor(waitTime_group, levels = c("0-7","8-14","15-30",">30"))) %>%
+    mutate(Total = rowSums(across(where(is.numeric)))) %>%
+    rename(`Median Days by % Productivity` = waitTime_group)
+    
+    Total <- colSums(waitTime_prod_summary[,2:length(waitTime_prod_summary)])
+    
+    waitTime_prod_summary <- bind_rows(waitTime_prod_summary, Total)
+    waitTime_prod_summary$`Median Days by % Productivity`[is.na(waitTime_prod_summary$`Median Days by % Productivity`)] <- "Total"
+    
+    tbl_output <- 
+      flextable(waitTime_prod_summary) %>%
+      fontsize(size = 12, part = "all") %>%
+      align(align = "center", part = "all") %>%
+      colformat_double(
+        j = 2:length(waitTime_prod_summary),
+        big.mark=",",
+        digits = 0) %>%
+      autofit() %>%
+      bold(j = c(1), part = "all") %>%
+      bg(j = c(2:length(waitTime_prod_summary)), bg = "#212070", part = "header") %>%
+      bg(j = 1, bg = "#e5e6e5", part = "body") %>%
+      color(j = c(2:length(waitTime_prod_summary)), color = "white", part = "header") %>%
+      color(j = 1, i = 1:nrow(waitTime_prod_summary), color = "black", part = "body") %>%
+      vline(j = 1, border = fp_border(width = 2, color = "#656765")) %>%
+      hline(i = c((nrow(waitTime_prod_summary)-1)), border = fp_border(width = 2, color = "#656765")) %>%
+      vline(j = c((length(waitTime_prod_summary)-1)), border = fp_border(width = 2, color = "#656765")) %>%
+      width(j = 1, width = 1.4) %>%
+      width(j = 2:length(waitTime_prod_summary), width = 0.9)
+      # width(j = c(2), width = 1) %>%
+      # width(j = c(3:length(payer_mix)), width = 1.2) %>%
+      # height(height = .4, part = "body")
+    # rotate(j = c(3:length(payer_mix)), rotation = "lrtb", align = "bottom", part = "header")
+    
+}
+
+```
+
+
+```{r Physician Productivity Output, echo = FALSE, warning = FALSE, message = FALSE}
+
+productivity_provider_50_function <- function(department){
+  
+  provider_list <- unique((scheduling_data_raw %>% filter(Campus.Specialty == department))[,c("Provider","NPI")])
+  provider_list <- provider_list %>% filter(!is.na(NPI))
+  
+  # Find column index reference for columns needed to be subset (based on months includes in the report)
+  numbers_only <- function(x) !grepl("\\D", x)
+  month_col_index <- max(which(numbers_only(colnames(productivity_raw))==TRUE))
+  
+  # Subset raw productivity data 
+  productivity_tbl <- productivity_raw %>%
+    filter(NPI %in% unique(provider_list$NPI)) %>%
+    dplyr::select(c(1:3,5, (month_col_index+1):(month_col_index+4),(length(productivity_raw)-16):(length(productivity_raw)-12)))
+  
+  # clean up column names 
+  cols <- gsub("\\...[0−9]*$","",colnames(productivity_tbl))
+  
+  # Convert productivity metrics into percentages
+  productivity_tbl <- productivity_tbl %>%
+    mutate(last_year = round(.[[length(productivity_tbl)-1]],2)*100,
+           current_year = round(.[[length(productivity_tbl)]],2)*100) %>%
+    arrange(current_year) %>%
+    dplyr::select(-c(12:13))
+  
+  productivity_tbl$waitTime <- wait_time_prov$med_wait[match(productivity_tbl$NPI, wait_time_prov$NPI)]
+  
+  
+  colourer <- col_numeric(
+    palette = c("red", "wheat", "#00b800"),
+    domain = c(0, 50, 100))
+    
+  tbl_output_50 <-
+    productivity_tbl %>%
+    filter(current_year <50) %>%
+    `colnames<-`(c(cols,"New Wait Time")) %>%
+    flextable() %>%
+    fontsize(size = 8, part = "all") %>%
+    autofit() %>%
+    colformat_double(
+        j = c(5:7,10:11,14),
+        big.mark=",",
+        digits = 0) %>%
+    colformat_double(
+        j = c(12),
+        digits = 2) %>%
+    colformat_double(
+        j = c(8,12:13),
+        digits = 0,
+        suffix = "%") %>%
+    theme_vanilla() %>%
+    bg(j = c(1:4,9:11), bg = "#212070", part = "header") %>%
+    bg(j = c(5:8), bg = "#00aeef", part = "header") %>%
+    bg(j = c(12:14), bg = "#d80b8c", part = "header") %>%
+    bold(j = c(1:14), part = "header") %>%
+    color(j = c(1:14), color = "white", part = "header") %>%
+    bg(j = c(12:13), bg = colourer, part = "body") %>%
+    bold(j = c(8, 12:14), part = "body") %>%
+    color(~ `Percent Increase/Decrease` < 0, ~ `Percent Increase/Decrease`, color = "red") %>%
+    color(~ `Percent Increase/Decrease` > 0, ~ `Percent Increase/Decrease`, color = "#00b800") %>%
+    color(~ `New Wait Time` <= 14, ~ `New Wait Time`, color = "#00b800") %>%
+    color(~ `New Wait Time` > 14, ~ `New Wait Time`, color = "red") %>%
+    height(height = .2, part = "body") %>%
+    width(j = 3, 1.5) %>%
+    width(j = c(1:2,5:7,9:14), width = 0.8) %>%
+    width(j = c(8,10:11), width = 1.2) %>%
+    align(j = c(5:14), align = "center", part = "body")
+    
+    
+  return(tbl_output_50)
+ 
+}
+
+
+
+productivity_provider_75_function <- function(department){
+  
+  provider_list <- unique((scheduling_data_raw %>% filter(Campus.Specialty == department))[,c("Provider","NPI")])
+  provider_list <- provider_list %>% filter(!is.na(NPI))
+  
+  # Find column index reference for columns needed to be subset (based on months includes in the report)
+  numbers_only <- function(x) !grepl("\\D", x)
+  month_col_index <- max(which(numbers_only(colnames(productivity_raw))==TRUE))
+  
+  # Subset raw productivity data 
+  productivity_tbl <- productivity_raw %>%
+    filter(NPI %in% unique(provider_list$NPI)) %>%
+    dplyr::select(c(1:3,5, (month_col_index+1):(month_col_index+4),(length(productivity_raw)-16):(length(productivity_raw)-12)))
+  
+  # clean up column names 
+  cols <- gsub("\\...[0−9]*$","",colnames(productivity_tbl))
+  
+  # Convert productivity metrics into percentages
+  productivity_tbl <- productivity_tbl %>%
+    mutate(last_year = round(.[[length(productivity_tbl)-1]],2)*100,
+           current_year = round(.[[length(productivity_tbl)]],2)*100) %>%
+    arrange(current_year) %>%
+    dplyr::select(-c(12:13))
+  
+  productivity_tbl$waitTime <- wait_time_prov$med_wait[match(productivity_tbl$NPI, wait_time_prov$NPI)]
+  
+  
+  colourer <- col_numeric(
+    palette = c("red", "wheat", "#00b800"),
+    domain = c(0, 50, 100))
+    
+  tbl_output_75 <-
+    productivity_tbl %>%
+    filter(current_year >=50 & current_year <75) %>%
+    `colnames<-`(c(cols,"New Wait Time")) %>%
+    flextable() %>%
+    fontsize(size = 8, part = "all") %>%
+    autofit() %>%
+    colformat_double(
+        j = c(5:7,10:11,14),
+        big.mark=",",
+        digits = 0) %>%
+    colformat_double(
+        j = c(12),
+        digits = 2) %>%
+    colformat_double(
+        j = c(8,12:13),
+        digits = 0,
+        suffix = "%") %>%
+    theme_vanilla() %>%
+    bg(j = c(1:4,9:11), bg = "#212070", part = "header") %>%
+    bg(j = c(5:8), bg = "#00aeef", part = "header") %>%
+    bg(j = c(12:14), bg = "#d80b8c", part = "header") %>%
+    bold(j = c(1:14), part = "header") %>%
+    color(j = c(1:14), color = "white", part = "header") %>%
+    bg(j = c(12:13), bg = colourer, part = "body") %>%
+    bold(j = c(8, 12:14), part = "body") %>%
+    color(~ `Percent Increase/Decrease` < 0, ~ `Percent Increase/Decrease`, color = "red") %>%
+    color(~ `Percent Increase/Decrease` > 0, ~ `Percent Increase/Decrease`, color = "#00b800") %>%
+    color(~ `New Wait Time` <= 14, ~ `New Wait Time`, color = "#00b800") %>%
+    color(~ `New Wait Time` > 14, ~ `New Wait Time`, color = "red") %>%
+    height(height = .2, part = "body") %>%
+    width(j = 3, 1.5) %>%
+    width(j = c(1:2,5:7,9:14), width = 0.8) %>%
+    width(j = c(8,10:11), width = 1.2) %>%
+    align(j = c(5:14), align = "center", part = "body")
+    
+    
+  return(tbl_output_75)
+ 
+}
+
+productivity_provider_100_function <- function(department){
+  
+  provider_list <- unique((scheduling_data_raw %>% filter(Campus.Specialty == department))[,c("Provider","NPI")])
+  provider_list <- provider_list %>% filter(!is.na(NPI))
+  
+  # Find column index reference for columns needed to be subset (based on months includes in the report)
+  numbers_only <- function(x) !grepl("\\D", x)
+  month_col_index <- max(which(numbers_only(colnames(productivity_raw))==TRUE))
+  
+  # Subset raw productivity data 
+  productivity_tbl <- productivity_raw %>%
+    filter(NPI %in% unique(provider_list$NPI)) %>%
+    dplyr::select(c(1:3,5, (month_col_index+1):(month_col_index+4),(length(productivity_raw)-16):(length(productivity_raw)-12)))
+  
+  # clean up column names 
+  cols <- gsub("\\...[0−9]*$","",colnames(productivity_tbl))
+  
+  # Convert productivity metrics into percentages
+  productivity_tbl <- productivity_tbl %>%
+    mutate(last_year = round(.[[length(productivity_tbl)-1]],2)*100,
+           current_year = round(.[[length(productivity_tbl)]],2)*100) %>%
+    arrange(current_year) %>%
+    dplyr::select(-c(12:13))
+  
+  productivity_tbl$waitTime <- wait_time_prov$med_wait[match(productivity_tbl$NPI, wait_time_prov$NPI)]
+  
+  
+  colourer <- col_numeric(
+    palette = c("red", "wheat", "#00b800"),
+    domain = c(0, 50, 100))
+    
+  tbl_output_100 <-
+    productivity_tbl %>%
+    filter(current_year >=70) %>%
+    `colnames<-`(c(cols,"New Wait Time")) %>%
+    flextable() %>%
+    fontsize(size = 8, part = "all") %>%
+    autofit() %>%
+    colformat_double(
+        j = c(5:7,10:11,14),
+        big.mark=",",
+        digits = 0) %>%
+    colformat_double(
+        j = c(12),
+        digits = 2) %>%
+    colformat_double(
+        j = c(8,12:13),
+        digits = 0,
+        suffix = "%") %>%
+    theme_vanilla() %>%
+    bg(j = c(1:4,9:11), bg = "#212070", part = "header") %>%
+    bg(j = c(5:8), bg = "#00aeef", part = "header") %>%
+    bg(j = c(12:14), bg = "#d80b8c", part = "header") %>%
+    bold(j = c(1:14), part = "header") %>%
+    color(j = c(1:14), color = "white", part = "header") %>%
+    bg(j = c(12:13), bg = colourer, part = "body") %>%
+    bold(j = c(8, 12:14), part = "body") %>%
+    color(~ `Percent Increase/Decrease` < 0, ~ `Percent Increase/Decrease`, color = "red") %>%
+    color(~ `Percent Increase/Decrease` > 0, ~ `Percent Increase/Decrease`, color = "#00b800") %>%
+    color(~ `New Wait Time` <= 14, ~ `New Wait Time`, color = "#00b800") %>%
+    color(~ `New Wait Time` > 14, ~ `New Wait Time`, color = "red") %>%
+    height(height = .2, part = "body") %>%
+    width(j = 3, 1.5) %>%
+    width(j = c(1:2,5:7,9:14), width = 0.8) %>%
+    width(j = c(8,10:11), width = 1.2) %>%
+    align(j = c(5:14), align = "center", part = "body")
+    
+  return(tbl_output_100)
+ 
+}
+
+
+```
+
+
+```{r Overall Utilization Table Output, echo = FALSE, warning = FALSE, message = FALSE}
+
+# MSHS Utilization Table Output - Day 
+overall_day_util_tbl_function <- function(department){
+  
+  # department <- "ENT-Otolaryngology"
+  
+  # MSHS Utilization
+  weekday_util_mshs_tbl <- weekday_metrics_merged_mshs %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Appt.YearQtr %in% c(data_quarters[length(data_quarters)], data_quarters[length(data_quarters)-1], data_quarters[length(data_quarters)-4])) %>%
+    arrange(desc(Appt.YearQtr)) %>%
+    arrange(Metric, Breakdown) %>%
+    group_by(Metric, Breakdown) %>%
+    mutate(prior_value = shift(Value)) %>%
+    mutate(prior_value = ifelse(is.na(prior_value), Value, prior_value)) %>%
+    mutate(prior_value = ifelse(is.na(prior_value), Value, shift(prior_value))) %>%
+    mutate(diff = ifelse(is.na(prior_value), Value, prior_value - Value)) %>%
+    dplyr::select(-c(Value, prior_value)) %>%
+    rename(Value = diff) %>%
+    pivot_wider(names_from = Metric,
+                values_from = Value) %>%
+    # mutate(Campus = "MSHS") %>%
+    mutate(Appt.YearQtr = as.character(as.yearqtr(Appt.YearQtr))) %>%
+    dplyr::select(Appt.YearQtr, Breakdown, room_count, Benchmark, 
+                  daily_vol, vol_target_var, visits_util, dur_utilization)
+  
+  current_qtr <- weekday_util_mshs_tbl %>%
+    filter(Appt.YearQtr == data_quarters[length(data_quarters)]) %>%
+    dplyr::select(-Appt.YearQtr)
+  
+  previous_qtr <- weekday_util_mshs_tbl %>%
+    filter(Appt.YearQtr == data_quarters[length(data_quarters)-1]) %>%
+    dplyr::select(-Appt.YearQtr)
+  
+  site <- data.frame(Campus = rep("MSHS Overall",3))
+  data_mshs <- merge(previous_qtr, current_qtr, by = c("Breakdown","room_count","Benchmark"))
+  data_mshs <- bind_cols(site, data_mshs)
+  
+  data_mshs <- data_mshs %>%
+    arrange(factor(Breakdown, levels = c("Day","AM","PM"))) 
+  
+  
+  # Utilization by Site
+  weekday_util_site_tbl <- weekday_metrics_merged_site %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Appt.YearQtr %in% c(data_quarters[length(data_quarters)], data_quarters[length(data_quarters)-1], data_quarters[length(data_quarters)-4])) %>%
+    arrange(desc(Appt.YearQtr)) %>%
+    arrange(Metric, Breakdown, Campus) %>%
+    group_by(Metric, Breakdown, Campus) %>%
+    mutate(prior_value = shift(Value)) %>%
+    mutate(prior_value = ifelse(is.na(prior_value), Value, prior_value)) %>%
+    mutate(prior_value = ifelse(is.na(prior_value), Value, shift(prior_value))) %>%
+    mutate(diff = ifelse(is.na(prior_value), Value, prior_value - Value)) %>%
+    dplyr::select(-c(Value, prior_value)) %>%
+    rename(Value = diff) %>%
+    pivot_wider(names_from = Metric,
+                values_from = Value) %>%
+    # mutate(Campus = "MSHS") %>%
+    mutate(Appt.YearQtr = as.character(as.yearqtr(Appt.YearQtr))) %>%
+    dplyr::select(Appt.YearQtr, Campus, Breakdown, room_count, Benchmark, 
+                  daily_vol, vol_target_var, visits_util, dur_utilization)
+  
+  
+  current_qtr <- weekday_util_site_tbl %>%
+    filter(Appt.YearQtr == data_quarters[length(data_quarters)]) %>%
+    dplyr::select(-Appt.YearQtr)
+  
+  previous_qtr <- weekday_util_site_tbl %>%
+    filter(Appt.YearQtr == data_quarters[length(data_quarters)-1]) %>%
+    dplyr::select(-Appt.YearQtr)
+  
+  data_site <- merge(previous_qtr, current_qtr, by = c("Campus","Breakdown","room_count","Benchmark"))
+  data_site <- data_site %>%
+    arrange(factor(Breakdown, levels = c("Day","AM","PM"))) %>%
+    arrange(Campus)
+  
+  data <- bind_rows(data_mshs, data_site)
+  
+  is.nan.data.frame <- function(x)
+    do.call(cbind, lapply(x, is.nan))
+  
+  data[is.nan(data)] <- NA
+  
+  colourer <- col_numeric(
+    palette = c("red", "wheat", "#00b800"),
+    domain = c(0, .5, 1))
+  
+  tbl_output <- flextable(data) %>%
+    autofit() %>%
+    fontsize(size = 11, part = "all") %>%
+    fontsize(size = 6, part = "footer") %>%
+    font(fontname = "Calibri", part = "all") %>%
+    italic(part = "footer") %>%
+    colformat_double(
+      j = c(5:length(data)),
+      big.mark=",",
+      digits = 0) %>%
+    add_header_row(values = c("","Previous Quarter", "Current Quarter"), colwidths = c(4,4,4)) %>%
+    add_footer_lines("Utilization Target: 85%") %>%
+    bold(j = c(1, 7:8, 11:12), part = "all") %>%
+    align(j = c(1:2), align = "left", part = "all") %>%
+    # color(j = c(1:4), color = "black", part = "all") %>%
+    # color(~ visits_util.x < .85, ~ visits_util.x, color = "red") %>%
+    # color(~  dur_utilization.x < .85, ~  dur_utilization.x, color = "red") %>%
+    # color(~ visits_util.x >= .85, ~ visits_util.x, color = "#00b800") %>%
+    # color(~ dur_utilization.x >= .85, ~ dur_utilization.x, color = "#00b800") %>%
+    # color(~ visits_util.y < .85, ~ visits_util.y, color = "red") %>%
+    # color(~  dur_utilization.y < .85, ~  dur_utilization.y, color = "red") %>%
+    # color(~ visits_util.y >= .85, ~ visits_util.y, color = "#00b800") %>%
+    # color(~ dur_utilization.y >= .85, ~ dur_utilization.y, color = "#00b800") %>%
+    bg(j = c(7:8,11:12), bg = colourer, part = "body") %>%
+    set_formatter(visits_util.x = function(x) sprintf( "%.0f%%", as.numeric(x)*100),
+                  dur_utilization.x = function(x) sprintf( "%.0f%%", as.numeric(x)*100),
+                  visits_util.y = function(x) sprintf( "%.0f%%", as.numeric(x)*100),
+                  dur_utilization.y = function(x) sprintf( "%.0f%%", as.numeric(x)*100)) %>%
+    bg(j = c(5:8), bg = "#7f7f7f", part = "header") %>%
+    bg(j = c(5:6), bg = "#F0F0F0", part = "body") %>%
+    bg(j = c(9:12), bg = "#212070", part = "header") %>%
+    bg(j = c(9:10), bg ="#EBEBF9", part = "body") %>%
+    set_header_labels(Campus = "Site", Breakdown = "Session", room_count = "Total Rooms", Benchmark = "Visits/Room/Day Benchmark",
+                      daily_vol.x = "Avg Weekday Visits", vol_target_var.x = "Var from Benchmark", 
+                      visits_util.x = "% Utilization (By Turns)", dur_utilization.x = "% Utilization (By Durations)",
+                      daily_vol.y = "Avg Weekday Visits", vol_target_var.y = "Var from Benchmark", 
+                      visits_util.y = "% Utilization (By Turns)", dur_utilization.y = "% Utilization (By Durations)") %>%
+    bold(j = 1:length(data), part = "header") %>%
+    merge_v(j = ~Campus) %>%
+    surround(border.bottom = fp_border(color = "gray"), part = "all") %>%
+    surround(i = 1, j = 1:4, border.top = fp_border(color = "white"), part = "header") %>%
+    align(j = 3:length(data), align = "center", part = "all") %>%
+    color(j = 5:length(data), color = "white", part = "header") %>%
+    height(height = 0.25, part = "body") %>%
+    width(j = 1, width = 1.5) %>%
+    width(j = 2:3, width = 0.7) %>%
+    width(j = 4, width = 1.2) %>%
+    width(j = 5:12, width = 1.1)
+  
+  return(tbl_output)
+  
+}
+
+
+```
+
+
+
+```{r MSHS Utilization by Hour Processing, echo = FALSE, warning = FALSE, message = FALSE}
+
+
+overall_weekday_util_hour <- function(department){
+  
+  # Summarize total time spent in room per provider
+  room_util_all <- util_data_raw %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Appt.Day %!in% c("Sat","Sun")) %>%
+    dplyr::select(Campus.Specialty, Campus, Appt.Day,`08:00`:`17:00`) %>%
+    pivot_longer(`08:00`:`17:00`,
+                 names_to = "space_time",
+                 values_to = "space_dur") 
+  
+  
+  room_util_mshs <- room_util_all %>%
+    group_by(Campus.Specialty, Appt.Day, space_time) %>%
+    dplyr::summarise(total_space_dur = sum(space_dur, na.rm = TRUE))
+  
+  # Total Working days by provider
+  working_days_mshs <- util_data_raw  %>%
+    group_by(Appt.Day) %>%
+    dplyr::summarise(total_space_days = length(unique(Appt.DateYear)))
+  
+  room_util_mshs <- merge(room_util_mshs, working_days_mshs)
+  room_util_mshs <- merge(room_util_mshs, room_count_summary_mshs)
+
+  # Utilization by Hour
+  avg_util_hour_mshs <- room_util_mshs %>%
+    mutate(avg_room_util = round(total_space_dur/total_space_days),
+           avg_space_required = ceiling(avg_room_util/60),
+           avg_perc_util = round(avg_room_util/(room_count*60),2))
+  
+  daysOfWeek.options <- c("Mon","Tue","Wed","Thu","Fri","Sat","Sun") ## Days of Week Filter
+  
+  # Average Utilizaton by Hour 
+  graph <- ggplot()+
+    # Create bounds for "under-utilized" performance
+    geom_rect(aes(xmin = -Inf,
+                  xmax = Inf,
+                  ymin = 0,
+                  ymax = .85,
+                  fill = "Under",
+                  alpha = "Under"), show.legend = FALSE) +
+    # Create bounds for "well utilized" performance
+    geom_rect(aes(xmin = -Inf,
+                  xmax = Inf,
+                  ymin = .85,
+                  ymax = 1,
+                  fill = "Well",
+                  alpha = "Well"), show.legend = FALSE) +
+    # Create bounds for "well utilized" performance
+    geom_rect(aes(xmin = -Inf,
+                  xmax = Inf,
+                  ymin = 1,
+                  ymax = Inf,
+                  fill = "Over",
+                  alpha = "Over"), show.legend = FALSE) +
+    scale_fill_manual(name = "Status",
+                      values = c("Under" = "red",
+                                 "Well" = "green",
+                                 "Over" = "orange"),
+                      breaks=c("Under", "Well", "Over")) +
+    scale_alpha_manual(name = "Status",
+                       values = c("Under" = 0.15,
+                                  "Well" = 0.15,
+                                  "Over" = 0.15))+
+    geom_point(data = avg_util_hour_mshs, aes(x=space_time, y=avg_perc_util, col=factor(Appt.Day,level = daysOfWeek.options), group=Appt.Day),
+               size = 2)+
+    geom_line(data = avg_util_hour_mshs, aes(x=space_time, y=avg_perc_util, col=factor(Appt.Day,level = daysOfWeek.options), group=Appt.Day),
+              size = 1)+
+    labs(title = "Average Utilization by Hour (Weekdays Only)",
+         subtitle = department)+
+    scale_y_continuous(limits = c(0,max(1,max(avg_util_hour_mshs$avg_perc_util)*1.1)), 
+                       breaks = seq(0,max(1,max(avg_util_hour_mshs$avg_perc_util)*1.1), by = .1),
+                       expand=c(0,0), labels = scales::percent_format(accuracy = 1))+
+    scale_color_manual(values=c("#212070","#d80b8c","#00aeef","#7f7f7f","#ffc000"))+
+    theme_bw()+
+      theme(plot.title = element_text(hjust=0.5, face = "bold", size = 14),
+            plot.subtitle = element_text(hjust=0.5, size = 12, face = "italic"),
+            legend.position = "bottom",
+            legend.text = element_text(size="10"),
+            legend.direction = "horizontal",
+            # legend.key.size = unit(1.0,"cm"),
+            legend.title = element_blank(),
+            axis.title = element_blank(),
+            axis.text = element_text(size="10"),
+            axis.title.x = element_blank(),
+            axis.line = element_line(size = 0.3, colour = "black"))
+  
+  return(graph)
+  
+}
+
+
+overall_weekend_util_hour <- function(department){
+  
+  # Summarize total time spent in room per provider
+  room_util_all <- util_data_raw %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Appt.Day %in% c("Sat","Sun")) %>%
+    dplyr::select(Campus.Specialty, Campus, Appt.Day,`08:00`:`17:00`) %>%
+    pivot_longer(`08:00`:`17:00`,
+                 names_to = "space_time",
+                 values_to = "space_dur") 
+  
+  
+  room_util_mshs <- room_util_all %>%
+    group_by(Campus.Specialty, Appt.Day, space_time) %>%
+    dplyr::summarise(total_space_dur = sum(space_dur, na.rm = TRUE))
+  
+  # Total Working days by provider
+  working_days_mshs <- util_data_raw  %>%
+    group_by(Appt.Day) %>%
+    dplyr::summarise(total_space_days = length(unique(Appt.DateYear)))
+  
+  room_util_mshs <- merge(room_util_mshs, working_days_mshs)
+  room_util_mshs <- merge(room_util_mshs, room_count_summary_mshs)
+
+  # Utilization by Hour
+  avg_util_hour_mshs <- room_util_mshs %>%
+    mutate(avg_room_util = round(total_space_dur/total_space_days),
+           avg_space_required = ceiling(avg_room_util/60),
+           avg_perc_util = round(avg_room_util/(room_count*60),2))
+  
+  daysOfWeek.options <- c("Mon","Tue","Wed","Thu","Fri","Sat","Sun") ## Days of Week Filter
+  
+  # Average Utilizaton by Hour 
+  graph <- ggplot()+
+    # Create bounds for "under-utilized" performance
+    geom_rect(aes(xmin = -Inf,
+                  xmax = Inf,
+                  ymin = 0,
+                  ymax = .85,
+                  fill = "Under",
+                  alpha = "Under"), show.legend = FALSE) +
+    # Create bounds for "well utilized" performance
+    geom_rect(aes(xmin = -Inf,
+                  xmax = Inf,
+                  ymin = .85,
+                  ymax = 1,
+                  fill = "Well",
+                  alpha = "Well"), show.legend = FALSE) +
+    # Create bounds for "well utilized" performance
+    geom_rect(aes(xmin = -Inf,
+                  xmax = Inf,
+                  ymin = 1,
+                  ymax = Inf,
+                  fill = "Over",
+                  alpha = "Over"), show.legend = FALSE) +
+    scale_fill_manual(name = "Status",
+                      values = c("Under" = "red",
+                                 "Well" = "green",
+                                 "Over" = "orange"),
+                      breaks=c("Under", "Well", "Over")) +
+    scale_alpha_manual(name = "Status",
+                       values = c("Under" = 0.15,
+                                  "Well" = 0.15,
+                                  "Over" = 0.15))+
+    geom_point(data = avg_util_hour_mshs, aes(x=space_time, y=avg_perc_util, col=factor(Appt.Day,level = daysOfWeek.options), group=Appt.Day),
+               size = 2)+
+    geom_line(data = avg_util_hour_mshs, aes(x=space_time, y=avg_perc_util, col=factor(Appt.Day,level = daysOfWeek.options), group=Appt.Day),
+              size = 1)+
+    labs(title = "Average Utilization by Hour (Weekends)",
+         subtitle = department)+
+    scale_y_continuous(limits = c(0,max(1,max(avg_util_hour_mshs$avg_perc_util)*1.1)), 
+                       breaks = seq(0,max(1,max(avg_util_hour_mshs$avg_perc_util)*1.1), by = .1),
+                       expand=c(0,0), labels = scales::percent_format(accuracy = 1))+
+    scale_color_manual(values=c("#212070","#d80b8c","#00aeef","#7f7f7f","#ffc000"))+
+    theme_bw()+
+      theme(plot.title = element_text(hjust=0.5, face = "bold", size = 14),
+            plot.subtitle = element_text(hjust=0.5, size = 12, face = "italic"),
+            legend.position = "bottom",
+            legend.text = element_text(size="10"),
+            legend.direction = "horizontal",
+            # legend.key.size = unit(1.0,"cm"),
+            legend.title = element_blank(),
+            axis.title = element_blank(),
+            axis.text = element_text(size="10"),
+            axis.title.x = element_blank(),
+            axis.line = element_line(size = 0.3, colour = "black"))
+  
+  return(graph)
+  
+}
+
+```
+
+
+```{r Site Utilization by Hour Processing, echo = FALSE, warning = FALSE, message = FALSE}
+
+site_weekday_util_hour <- function(department){
+  
+  
+  # Summarize total time spent in room per provider
+  room_util_avg <- util_data_raw %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Appt.Day %!in% c("Sat","Sun")) %>%
+    dplyr::select(Campus.Specialty, Campus,`08:00`:`17:00`) %>%
+    pivot_longer(`08:00`:`17:00`,
+                 names_to = "space_time",
+                 values_to = "space_dur") 
+
+  
+  room_util_site <- room_util_avg %>%
+    group_by(Campus.Specialty, Campus, space_time) %>%
+    dplyr::summarise(total_space_dur = sum(space_dur, na.rm = TRUE))
+
+  # Total Working days by provider
+  working_days_site <- util_data_raw  %>%
+    group_by(Campus) %>%
+    dplyr::summarise(total_space_days = length(unique(Appt.DateYear)))
+
+  room_util_site <- merge(room_util_site, working_days_site)
+  room_util_site <- merge(room_util_site, room_count_summary_site)
+
+  # Utilization by Hour
+  avg_util_hour_site <- room_util_site %>%
+    mutate(avg_room_util = round(total_space_dur/total_space_days),
+           avg_space_required = ceiling(avg_room_util/60),
+           avg_perc_util = round(avg_room_util/(room_count*60),2))
+  
+  
+  # Average Utilizaton by Hour 
+  graph <- ggplot()+
+    # Create bounds for "under-utilized" performance
+    geom_rect(aes(xmin = -Inf,
+                  xmax = Inf,
+                  ymin = 0,
+                  ymax = .85,
+                  fill = "Under",
+                  alpha = "Under"), show.legend = FALSE) +
+    # Create bounds for "well utilized" performance
+    geom_rect(aes(xmin = -Inf,
+                  xmax = Inf,
+                  ymin = .85,
+                  ymax = 1,
+                  fill = "Well",
+                  alpha = "Well"), show.legend = FALSE) +
+    # Create bounds for "well utilized" performance
+    geom_rect(aes(xmin = -Inf,
+                  xmax = Inf,
+                  ymin = 1,
+                  ymax = Inf,
+                  fill = "Over",
+                  alpha = "Over"), show.legend = FALSE) +
+    scale_fill_manual(name = "Status",
+                      values = c("Under" = "red",
+                                 "Well" = "green",
+                                 "Over" = "orange"),
+                      breaks=c("Under", "Well", "Over")) +
+    scale_alpha_manual(name = "Status",
+                       values = c("Under" = 0.15,
+                                  "Well" = 0.15,
+                                  "Over" = 0.15))+
+    geom_point(data = avg_util_hour_site, aes(x=space_time, y=avg_perc_util, col=Campus, group=Campus),
+               size = 2)+
+    geom_line(data = avg_util_hour_site, aes(x=space_time, y=avg_perc_util, col=Campus, group=Campus),
+              size = 1)+
+    labs(title = "Average Utilization by Site (Weekdays Only)",
+         subtitle = department)+
+    scale_y_continuous(limits = c(0,max(1,max(avg_util_hour_site$avg_perc_util)*1.1)), 
+                       breaks = seq(0,max(1,max(avg_util_hour_site$avg_perc_util*1.1)), by = .1),
+                       expand=c(0,0), labels = scales::percent_format(accuracy = 1))+
+    scale_color_manual(values=c("#212070","#d80b8c","#00aeef","#7f7f7f","#ffc000","#7030a0","#5753d0","#5cd3ff"))+
+    theme_bw()+
+      theme(plot.title = element_text(hjust=0.5, face = "bold", size = 14),
+            plot.subtitle = element_text(hjust=0.5, size = 12, face = "italic"),
+            legend.position = "bottom",
+            legend.text = element_text(size="6"),
+            legend.direction = "horizontal",
+            # legend.key.size = unit(1.0,"cm"),
+            legend.title = element_blank(),
+            axis.title = element_blank(),
+            axis.text = element_text(size="10"),
+            axis.title.x = element_blank(),
+            axis.line = element_line(size = 0.3, colour = "black"))+
+    guides(colour = guide_legend(nrow = 1))
+  
+  return(graph)
+  
+}
+
+
+site_weekend_util_hour <- function(department){
+  
+  # department <- "ENT-Otolaryngology"
+  # Summarize total time spent in room per provider
+  room_util_avg <- util_data_raw %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Appt.Day %in% c("Sat","Sun")) %>%
+    dplyr::select(Campus.Specialty, Campus,`08:00`:`17:00`) %>%
+    pivot_longer(`08:00`:`17:00`,
+                 names_to = "space_time",
+                 values_to = "space_dur") 
+
+  
+  room_util_site <- room_util_avg %>%
+    group_by(Campus.Specialty, Campus, space_time) %>%
+    dplyr::summarise(total_space_dur = sum(space_dur, na.rm = TRUE))
+
+  # Total Working days by provider
+  working_days_site <- util_data_raw  %>%
+    group_by(Campus) %>%
+    dplyr::summarise(total_space_days = length(unique(Appt.DateYear)))
+
+  room_util_site <- merge(room_util_site, working_days_site)
+  room_util_site <- merge(room_util_site, room_count_summary_site)
+
+  # Utilization by Hour
+  avg_util_hour_site <- room_util_site %>%
+    mutate(avg_room_util = round(total_space_dur/total_space_days),
+           avg_space_required = ceiling(avg_room_util/60),
+           avg_perc_util = round(avg_room_util/(room_count*60),2))
+  
+  
+  # Average Utilizaton by Hour 
+  graph <- ggplot()+
+    # Create bounds for "under-utilized" performance
+    geom_rect(aes(xmin = -Inf,
+                  xmax = Inf,
+                  ymin = 0,
+                  ymax = .85,
+                  fill = "Under",
+                  alpha = "Under"), show.legend = FALSE) +
+    # Create bounds for "well utilized" performance
+    geom_rect(aes(xmin = -Inf,
+                  xmax = Inf,
+                  ymin = .85,
+                  ymax = 1,
+                  fill = "Well",
+                  alpha = "Well"), show.legend = FALSE) +
+    # Create bounds for "well utilized" performance
+    geom_rect(aes(xmin = -Inf,
+                  xmax = Inf,
+                  ymin = 1,
+                  ymax = Inf,
+                  fill = "Over",
+                  alpha = "Over"), show.legend = FALSE) +
+    scale_fill_manual(name = "Status",
+                      values = c("Under" = "red",
+                                 "Well" = "green",
+                                 "Over" = "orange"),
+                      breaks=c("Under", "Well", "Over")) +
+    scale_alpha_manual(name = "Status",
+                       values = c("Under" = 0.15,
+                                  "Well" = 0.15,
+                                  "Over" = 0.15))+
+    geom_point(data = avg_util_hour_site, aes(x=space_time, y=avg_perc_util, col=Campus, group=Campus),
+               size = 2)+
+    geom_line(data = avg_util_hour_site, aes(x=space_time, y=avg_perc_util, col=Campus, group=Campus),
+              size = 1)+
+    labs(title = "Average Utilization by Site (Weekends)",
+         subtitle = department)+
+    scale_y_continuous(limits = c(0,max(1,max(avg_util_hour_site$avg_perc_util)*1.1)), 
+                       breaks = seq(0,max(1,max(avg_util_hour_site$avg_perc_util*1.1)), by = .1),
+                       expand=c(0,0), labels = scales::percent_format(accuracy = 1))+
+    scale_color_manual(values=c("#212070","#d80b8c","#00aeef","#7f7f7f","#ffc000","#7030a0","#5753d0","#5cd3ff"))+
+    theme_bw()+
+      theme(plot.title = element_text(hjust=0.5, face = "bold", size = 14),
+            plot.subtitle = element_text(hjust=0.5, size = 12, face = "italic"),
+            legend.position = "bottom",
+            legend.text = element_text(size="6"),
+            legend.direction = "horizontal",
+            # legend.key.size = unit(1.0,"cm"),
+            legend.title = element_blank(),
+            axis.title = element_blank(),
+            axis.text = element_text(size="10"),
+            axis.title.x = element_blank(),
+            axis.line = element_line(size = 0.3, colour = "black"))+
+    guides(colour = guide_legend(nrow = 1))
+  
+  return(graph)
+  
+}
+
+
+```
+
+```{r Payer Mix Output, echo=FALSE, message=FALSE, warning=FALSE}
+
+dept_payer_mix <- function(department){
+
+  payer_mix <- scheduling_data_raw %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Appt.Status == "Arrived") %>%
+    filter(Appt.DateYear <= Sys.Date()) %>%
+    filter(Appt.YearQtr == data_quarters[length(data_quarters)]) %>%
+    mutate(Coverage = ifelse(is.na(Coverage),"Other",Coverage)) %>%
+    group_by(Campus, Coverage) %>%
+    summarise(payer = n()) %>%
+    group_by(Campus) %>%
+    mutate(total_vol = sum(payer),
+           payer_perc = round(payer/sum(payer),2)*100) %>%
+    dplyr::select(-payer) %>%
+    pivot_wider(names_from = Coverage,
+                values_from = payer_perc,
+                values_fill = 0) %>%
+    rename(Site = Campus,
+           `Quarter Volume` = total_vol)
+  
+  payer_mix_total <- scheduling_data_raw %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Appt.Status == "Arrived") %>%
+    filter(Appt.DateYear <= Sys.Date()) %>%
+    filter(Appt.YearQtr == data_quarters[length(data_quarters)]) %>%
+    mutate(Coverage = ifelse(is.na(Coverage),"Other",Coverage)) %>%
+    group_by(Coverage) %>%
+    summarise(payer = n()) %>%
+    mutate(total_vol = sum(payer),
+           payer_perc = round(payer/sum(payer),2)*100) %>%
+    dplyr::select(-payer) %>%
+    pivot_wider(names_from = Coverage,
+                values_from = payer_perc,
+                values_fill = 0) %>%
+    mutate(Site = "Total") %>%
+    rename(`Quarter Volume` = total_vol)
+  
+  payer_mix <- bind_rows(payer_mix, payer_mix_total)
+  
+  
+  colourer <- col_numeric(
+    palette = c("wheat", "#00b800"),
+    domain = c(0, max(payer_mix[,3:length(payer_mix)])))
+  
+ tbl_output <- 
+   flextable(payer_mix) %>%
+   font(fontname = "Calibri", part = "all") %>%
+   fontsize(size = 10, part = "all") %>%
+   align(j = 2:length(payer_mix), align = "center", part = "all") %>%
+   colformat_double(
+     j = c(3:length(payer_mix)), 
+     digits = 0,
+     suffix = "%") %>%
+   colformat_double(
+      j = 2,
+      big.mark=",",
+      digits = 0) %>%
+   autofit() %>%
+   bold(j = c(1), part = "all") %>%
+   bold(j = c(1:length(payer_mix)), part = "header") %>%
+   align(j = c(1), align = "left", part = "all") %>%
+   bg(j = c(1:length(payer_mix)), bg = "#212070", part = "header") %>%
+   bg(i = nrow(payer_mix), bg = "#dddedd", part = "body") %>%
+   color(j = c(1:length(payer_mix)), color = "black", part = "body") %>%
+   color(j = c(1:length(payer_mix)), color = "white", part = "header") %>%
+   bg(bg = colourer,
+      j = c(3:length(payer_mix)),
+      i = c(1:(nrow(payer_mix)-1)),
+      part = "body") %>%
+   vline(j = 2, border = fp_border(width = 2, color = "#656765")) %>%
+   hline(i = c((nrow(payer_mix)-1)), border = fp_border(width = 2, color = "#656765")) %>%
+   width(j = c(1), width = 2.3) %>%
+   width(j = c(2), width = 1) %>%
+   width(j = c(3:length(payer_mix)), width = 1.6) %>%
+   height(height = .4, part = "body")
+   # rotate(j = c(3:length(payer_mix)), rotation = "lrtb", align = "bottom", part = "header")
+ 
+ return(tbl_output)
+
+}
+
+```
+
+
+```{r Metrics Overview Output, echo = FALSE, warning = FALSE, message = FALSE}
+
+metrics_overview_tbl <- function(department){
+  
+  # Median Time to New Appointment
+  waitTime_mshs <- wait_time_mshs %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Appt.Made.YearQtr %in% reporting_YearQtr) %>%
+    filter(New.PT3 == "New") %>%
+    dplyr::select(med_wait) %>%
+    mutate(med_wait = as.numeric(med_wait))
+  
+  waitTime_site <- wait_time_site %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Appt.Made.YearQtr %in% reporting_YearQtr) %>%
+    filter(New.PT3 == "New") %>%
+    mutate(med_wait = as.numeric(med_wait)) %>%
+    pivot_wider(names_from = Campus,
+                values_from = med_wait,
+                values_fill = NA) %>%
+    dplyr::select(-New.PT3)
+  
+  waitTime_overall <- merge(waitTime_mshs, waitTime_site)
+  waitTime_overall <- waitTime_overall %>% 
+      rename(Quarter = Appt.Made.YearQtr,
+             Overall = med_wait) %>%
+    mutate(Metric = "waitTime")
+  
+  # New Patients Scheduled <=14 days 
+  newPTs_mshs <- wait_time_dist %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Appt.Made.YearQtr %in% reporting_YearQtr) %>%
+    filter(New.PT3 == "New") %>% 
+    group_by(Campus.Specialty, Appt.Made.YearQtr, New.PT3, group) %>%
+    summarise(total = sum(total)) %>%
+    mutate(new_perc = round(total/sum(total),2)) %>%
+    filter(group %in% c("0-7","8-14")) %>%
+    group_by(Campus.Specialty, Appt.Made.YearQtr) %>%
+    summarise(new_perc = sum(new_perc)*100)
+  
+  newPTs_site <- scheduling_data_raw %>%
+    filter(Campus.Specialty == department) %>%
+    filter(Appt.Made.YearQtr %in% reporting_YearQtr) %>%
+    filter(New.PT3 == "New") %>% 
+    filter(Wait.Time >= 0) %>%
+    mutate(group = case_when(Wait.Time >= 0 & Wait.Time <=7 ~ "0-7",
+                             Wait.Time >7 & Wait.Time <=14 ~ "8-14",
+                             Wait.Time >14 & Wait.Time <=30 ~ "15-30",
+                             TRUE ~ ">30")) %>%
+    group_by(Campus.Specialty, Appt.Made.YearQtr, Campus, group) %>%
+    summarise(total = n()) %>%
+    mutate(new_perc = round(total/sum(total),2)*100) %>%
+    filter(group %in% c("0-7","8-14")) %>%
+    group_by(Campus.Specialty, Appt.Made.YearQtr, Campus) %>%
+    summarise(new_perc = sum(new_perc)) %>%
+    pivot_wider(names_from = Campus,
+                 values_from = new_perc,
+                 values_fill = NA)
+  
+    newPTs_overall <- merge(newPTs_mshs, newPTs_site)
+    newPTs_overall <- newPTs_overall %>% 
+      rename(Quarter = Appt.Made.YearQtr,
+             Overall = new_perc) %>%
+      mutate(Metric = "newPTs")
+  
+    # Quarterly Volume Change
+    vol_var_mshs <- monthly_vol %>%
+      filter(Campus.Specialty == department) %>%
+      filter(Visit.Method == "Total") %>%
+      filter(Appt.YearQtr %in% c(data_quarters[length(data_quarters)], data_quarters[length(data_quarters)-1], data_quarters[length(data_quarters)-4])) %>%
+      mutate(Appt.YearQtr = as.character(Appt.YearQtr)) %>%
+      group_by(Campus.Specialty, Appt.YearQtr) %>%
+      summarise(total = sum(monthly_vol)) %>%
+      pivot_wider(names_from = Appt.YearQtr,
+                  values_from = total) %>%
+      mutate(var_last_qrt = round((.[[4]]/.[[3]])-1,2)*100,
+             var_last_yr = round((.[[4]]/.[[2]])-1,2)*100) %>%
+      pivot_longer(5:6,
+                   names_to = "Metric",
+                   values_to = "Overall") %>%
+      dplyr::select(Campus.Specialty, Metric, Overall)
+    
+    vol_var_site <- monthly_vol %>%
+      filter(Campus.Specialty == department) %>%
+      filter(Visit.Method == "Total") %>%
+      filter(Appt.YearQtr %in% c(data_quarters[length(data_quarters)], data_quarters[length(data_quarters)-1], data_quarters[length(data_quarters)-4])) %>%
+      mutate(Appt.YearQtr = as.character(Appt.YearQtr)) %>%
+      group_by(Campus.Specialty, Campus, Appt.YearQtr) %>%
+      summarise(total = sum(monthly_vol)) %>%
+      pivot_wider(names_from = Appt.YearQtr,
+                  values_from = total) 
+    
+    vol_var_site$var_last_qrt <- round((vol_var_site[[5]]/vol_var_site[[4]])-1,2)*100
+    vol_var_site$ var_last_yr <- round((vol_var_site[[5]]/vol_var_site[[3]])-1,2)*100  
+    
+    vol_var_site <- vol_var_site %>%
+      dplyr::select(Campus.Specialty, Campus, var_last_qrt, var_last_yr) %>%
+      pivot_longer(c("var_last_qrt","var_last_yr"),
+                   names_to = "Metric",
+                   values_to = "Values") %>%
+      pivot_wider(names_from = "Campus",
+                  values_from = "Values",
+                  values_fill = NA)
+    
+    vol_var_overall <- merge(vol_var_mshs, vol_var_site)
+    
+    # % Physicians <P75
+    P75_mshs <- wait_time_prov %>%
+      filter(Campus.Specialty == department) %>%
+      mutate(group = ifelse(productivity >=.75, "Yes","No")) %>%
+      group_by(Campus.Specialty, group) %>%
+      summarise(total = n()) %>%
+      group_by(Campus.Specialty) %>%
+      mutate(Overall = (total/sum(total))*100) %>%
+      filter(group == "No") %>%
+      dplyr::select(Campus.Specialty, Overall) %>%
+      mutate(Metric = "P75")
+    
+    metrics_merged <- bind_rows(waitTime_overall, newPTs_overall, vol_var_overall, P75_mshs)
+  # Metrics Overview Table Output ----------------------------------------------  
+  overview_tbl <- data.frame(
+    Metric = c("waitTime",
+              "newPTs",
+              "var_last_qrt",
+              "var_last_yr",
+              "P75",
+              "Referrals",
+              "Conversion",
+              "Arrived",
+              "Space_Turn",
+              "Space_Duration"),
+    `Metric Group` = c(rep("Access & Volume",4),
+                       rep("Productivity & Recruitment", 1),
+                       rep("Referrals", 3),
+                       rep("Space", 2)),
+    `Metric Name` = c("Median Time to New Appointment",
+              "% of New Patients Scheduled <=14 Days",
+              "% Volume Increase/Decrease from Prior Quarter",
+              "% Volume Increase/Decrease from Same Quarter Last Year",
+              "% of Physicians <P75",
+              "% of New Patients Referred outside of MSHS",
+              "% of Referrals Converted to Scheduled Appointments",
+              "% of Referrals Resulted in Completed Visits",
+              "% Space Utilization (By Turns)",
+              "% Space Utilization (By Durations)"),
+    Benchmark = c("14 days",
+                  "80%",
+                  "N/A",
+                  "N/A",
+                  "20%",
+                  "TBD",
+                  "TBD",
+                  "TBD",
+                  "85%",
+                  "85%")
+  )
+    
+  overview_tbl <- merge(overview_tbl, metrics_merged %>% dplyr::select(-c(Campus.Specialty, Quarter)), by = "Metric", all = TRUE)
+  tbl_output <- 
+    overview_tbl %>%
+    arrange(factor(Metric.Group, levels = c("Access & Volume","Productivity & Recruitment",
+                                            "Referrals", "Space"))) %>%
+    dplyr::select(-Metric) %>%
+    rename(Metric = Metric.Name) %>%
+    flextable() %>%
+    autofit() %>%
+    fontsize(size = 12, part = "all") %>%
+    font(fontname = "Calibri", part = "all") %>%
+    bold(j = 1, part = "all") %>%
+    bold(j = c(1:(length(overview_tbl)-1)), part = "header") %>%
+    merge_v(j = ~Metric.Group) %>%
+    surround(border.bottom = fp_border(color = "gray"), part = "all") %>%
+    surround(i = 1, border.bottom = fp_border(color = "black"), part = "header") %>%
+    surround(j = c(3:(length(overview_tbl)-1)), border.left = fp_border(color = "gray"), part = "all") %>%
+    align(j = c(3:(length(overview_tbl)-1)), align = "center", part = "all") %>%
+    bg(j = c(1:3), bg = "#212070", part = "header") %>%
+    bg(j = c(4:(length(overview_tbl)-1)), bg = "#d80b8c", part = "header") %>%
+    color(j = c(2:(length(overview_tbl)-1)), color = "white", part = "header") %>%
+    color(j = 1, color = "#212070", part = "header") %>%
+    colformat_double(
+     j = c(4:(length(overview_tbl)-1)),
+     i = c(1:3,5:nrow(overview_tbl)),
+     digits = 0,
+     suffix = "%") %>%
+    colformat_double(
+     j = c(4:(length(overview_tbl)-1)),
+     i = c(4),
+     digits = 0,
+     suffix = " days") %>%
+    width(j = 1, width = 1.4) %>%
+    width(j = 2, width = 3.3) %>%
+    width(j = c(4:(length(overview_tbl)-1)), width = 1.2) %>%
+    height(height = 0.35, part = "body") 
+
+}
+
+  
+```
+
+
+```{r Action Plan Table Output, echo = FALSE, warning = FALSE, message = FALSE}
+
+`Focus` = c(rep("Access & Volume",3), rep("Productivity & Recruitment",3),
+                   rep("Referrals",3), rep("Space",3), rep("Finance",3))
+`Initiative` = c(rep("",15))
+`Goals` = c(rep("",15))
+Status = c(rep("",15))
+
+actionPlan_output <- data.frame(`Focus`, `Initiative`,
+                                `Goals`, Status)
+
+actionPlan_output <- actionPlan_output %>%
+  flextable() %>%
+  autofit() %>%
+  fontsize(size = 14, part = "all") %>%
+  font(fontname = "Calibri", part = "all") %>%
+  bold(j = 1, part = "all") %>%
+  bold(j = c(1:4), part = "header") %>%
+  merge_v(j = ~Focus) %>%
+  set_header_labels(Focus = "Focus Area", Initiative = "Initiative Description", 
+                    Goals = "Goals & Challenges", Status = "Status") %>%
+  surround(border.bottom = fp_border(color = "gray"), part = "all") %>%
+  surround(i = 1, border.bottom = fp_border(color = "black"), part = "header") %>%
+  bg(j = c(2:4), bg = "#212070", part = "header") %>%
+  color(j = c(2:4), color = "white", part = "header") %>%
+  width(j = 1, width = 2) %>%
+  width(j = c(2:3), width = 4.7) %>%
+  width(j = 4, width = 1.5) %>%
+  height(height = 0.35, part = "body")
+
+```
+
+
+```{r Metric Definitions, echo = FALSE, warning = FALSE, message = FALSE}
+
+metrics_def <- data.frame(Metric = c("Net Operating Variance to Budget",
+                                     "Expense Variance to Budget",
+                                     "Time to Appointment",
+                                     "Average Weekday Visits",
+                                     "Variance from Benchmark",
+                                     "% Utilization (By Turns)",
+                                     "% Utilization (By Durations)",
+                                     "Average Utilization by Hour"),
+                          Definition = c("PLACEHOLDER",
+                                         "PLACEHOLDER",
+                                         "Number of days between date-of-schedule and date-of-service.",
+                                         "Total number of arrived visits over total number of business days in a time period.",
+                                         "Difference between Average Weekday Volume and Expected Daily Volume Target based on total room count and visits/room/day benchmark (i.e. 10 rooms available per day and 10 visits/room/day benchmark equals to 100 expected daily volume target; 120 average weekday volume results in 20 Volume Variance to Benchmark).",
+                                         "Average weekday volume over total number of rooms available over visits/room/day benchmark.",
+                                         "Total sum of scheduled visit durations with 20% adjustment factor over total room time available. Total room time available is calculated based on Total Rooms Available per Day x Total Working Hours per Day (10 rooms available per day x 8 working hours per day = 80 hours of room time available per day).",
+                                         "Total sum of scheduled visit durations with 20% adjustment factor over total room time available within the respective hour (2 30-minute visits scheduled at 9:00am and 9:30am with 1 rooms available = 60 minutes of visit duration / 60 room time available = 100% Utilization)."))
+
+
+metrics_def_tbl <- flextable(metrics_def) %>%
+  fontsize(size = 12, part = "all") %>%
+  font(fontname = "Calibri", part = "all") %>%
+  autofit() %>%
+  bold(j = 1, part = "all") %>%
+  bold(i = 1, part = "header") %>%
+  bg(j = c(1:length(metrics_def)), bg = "#212070", part = "header") %>%
+  color(j = c(1:length(metrics_def)), color = "white", part = "header") %>%
+  border_inner_h(border = fp_border_default(width = 1, color = "lightgrey"), part="all") %>%
+  # surround(i = 1, border.bottom = fp_border(color = "white"), part = "all") %>%
+  width(j = 1, 3) %>%
+  width(j = 2, 9) 
+
+
+```
+
+
+```{r Quarterly Performance Report PPT Ouput, ft.align = "center", echo = FALSE, warning = FALSE, message = FALSE}
+
+dept_list <- as.vector(unique(weekday_metrics_merged_mshs$Campus.Specialty))
+
+for(i in dept_list){
+  
+  i <- "ENT-Otolaryngology"
+  
+  # Import in pptx template
+  ppt_temp <- read_pptx("template_performanceReport.pptx")
+
+  # 1. Create Title Slide --------------------------------------------------------
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Title Slide", master = "Default Theme")
+  ppt_temp  <- ph_with(ppt_temp, value = paste0("Quarterly Finance & Operational Performance Report"), 
+                       location = ph_location_label(ph_label = "Title 1"))
+  ppt_temp <-  ph_with(ppt_temp, value = as.character(reporting_YearQtr), 
+                       location = ph_location_label(ph_label = "Subtitle 2"))
+  ppt_temp <-  ph_with(ppt_temp, value = i, 
+                       location = ph_location_label(ph_label = "Text Placeholder 6"))
+  
+  # 2. Add Improving Access Slide ------------------------------------------------
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Diagram", master = "Default Theme")
+  ppt_temp  <- ph_with(ppt_temp, value = paste0("Improving Access"), 
+                       location = ph_location_label(ph_label = "Title 1"))
+
+  # 3. Create Volume & Access Slide -----------------------------------------------
+  ## Section Header 
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Section Header", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = "Volume & Access",
+                      location = ph_location_label(ph_label = "Title 1"))
+
+  ## Volume Metrics Slide ========================================================
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "1_Two Vertical Tables", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = paste0("Volume - ",i), 
+                      location = ph_location_label(ph_label = "Title 1"))
+  ppt_temp <- ph_with(ppt_temp, value = dept_monthly_vol_function(i),
+                      location = ph_location_label(ph_label = "Chart Placeholder 6"))
+  ### Generate Volume Heat Map Title
+  text_style <- fp_text(font.size = 16, bold = TRUE, font.family = "Calibri")
+  par_style <- fp_par(text.align = "center")
+  ppt_temp <- ph_with(ppt_temp, value = fpar(ftext("Volume by Geography", prop = text_style), fp_p = par_style),  
+                      location = ph_location_label(ph_label = "Text Placeholder 7"))
+  ### Generate and save volume heat map 
+  dept_heat_map_function(i) 
+  ppt_temp <- ph_with(ppt_temp, value = external_img(src = "vol_heat_map.png", height = 1.06/2, width = 1.39/2),
+                          location = ph_location_label(ph_label = "Table Placeholder 9"))
+  
+  ### Key Takeaways 
+  vol_slide_takeaways <- block_list(fpar(ftext(paste0("Total volume for ",reporting_YearQtr," was ",dept_monthly_vol_takeaway(i)[2],
+                                                      " (",dept_monthly_vol_takeaway(i)[1]," was in-person visits)"),
+                                               prop = fp_text(font.family = 'Calibri',font.size=16, bold = TRUE))),
+                                    fpar(ftext(paste0("Average monthly volume for this quarter was ",dept_monthly_vol_takeaway(i)[3]),
+                                               prop = fp_text(font.family = 'Calibri',font.size=14))),
+                                    fpar(ftext(paste0("This is ",dept_monthly_vol_takeaway(i)[4]," change from last quarter"),
+                                               prop = fp_text(font.family = 'Calibri',font.size=14))),
+                                    fpar(ftext(paste0("This is ",dept_monthly_vol_takeaway(i)[5]," change from same quarter last year"),
+                                               prop = fp_text(font.family = 'Calibri',font.size=14))),
+                                    fpar(ftext(paste0(dept_monthly_vol_takeaway(i)[6]," saw the largest volume with ",dept_monthly_vol_takeaway(i)[7],
+                                                      " visits (",dept_monthly_vol_takeaway(i)[8]," of total volume)"),
+                                               prop = fp_text(font.family = 'Calibri',font.size=14))))
+  
+  
+  ppt_temp <- ph_with(ppt_temp, value = vol_slide_takeaways,  
+                      location = ph_location_label(ph_label = "Text Placeholder 3"),
+                      level_list = c(1,2,2,2,2)) 
+  
+  
+  ## Volume Trending by Site Slide ===============================================
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Volume_Trending", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = paste0("Volume Trending - ",i), 
+                      location = ph_location_label(ph_label = "Title 1"))
+  ppt_temp <- ph_with(ppt_temp, value = deptSite_monthly_vol_function_1(i),
+                      location = ph_location_label(ph_label = "Chart Placeholder 6"))
+  ppt_temp <- ph_with(ppt_temp, value = deptSite_monthly_vol_function_2(i),
+                      location = ph_location_label(ph_label = "Table Placeholder 9"))
+  
+  
+  ## Access Metrics Slide ========================================================
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Two Vertical Tables", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = paste0("Access - ",i), 
+                      location = ph_location_label(ph_label = "Title 1"))
+  ppt_temp <- ph_with(ppt_temp, value = overall_time_to_appt_dist_function(i),
+                      location = ph_location_label(ph_label = "Chart Placeholder 6"))
+  ppt_temp <- ph_with(ppt_temp, value = site_time_to_appt_function(i),
+                      location = ph_location_label(ph_label = "Table Placeholder 9"))
+  
+  ### Key Takeaways 
+  access_slide_takeaways <- block_list(fpar(ftext(paste0("Total new patient visits scheduled in ",reporting_YearQtr," was ",dept_access_takeaway(i)[1],
+                                                      " (",dept_access_takeaway(i)[2]," of total visits scheduled)"),
+                                               prop = fp_text(font.family = 'Calibri',font.size=16, bold = TRUE))),
+                                    fpar(ftext(paste0(dept_access_takeaway(i)[3],
+                                                      " of new in-office ",i,
+                                                      " patients are seen within 14 days of scheduling the appointment (target: <=14 days)"),
+                                               prop = fp_text(font.family = 'Calibri',font.size=14))),
+                                    fpar(ftext(paste0(dept_access_takeaway(i)[4],
+                                                      " of new telehealth ",i,
+                                                      " patient are seen within 14 days of scheduling the appointment (target: <=14 days)"),
+                                               prop = fp_text(font.family = 'Calibri',font.size=14))),
+                                    fpar(ftext(paste0("Median time between scheduling and an actual appointment for new ",i," patients across all sites is ",
+                                                      dept_access_takeaway(i)[5], " days"),
+                                               prop = fp_text(font.family = 'Calibri',font.size=14))))
+  
+  
+  ppt_temp <- ph_with(ppt_temp, value = access_slide_takeaways,  
+                      location = ph_location_label(ph_label = "Text Placeholder 3"),
+                      level_list = c(1,2,2,2)) 
+  
+  # 3. Create Productivity & Recruitment Slide ----------------------------------
+  ## Create Section Header
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Section Header", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = "Productivity & Recruitment and Growth Planning",
+                      location = ph_location_label(ph_label = "Title 1"))
+  
+  ## Create Productivity Metrics Slide ==========================================
+  ### Productivity Overview
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "productivity_Slide", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = paste0("Productivity Overview - ",i), 
+                      location = ph_location_label(ph_label = "Title 1"))
+  ppt_temp <- ph_with(ppt_temp, value = productivity_scatter_function(i),
+                      location = ph_location_label(ph_label = "Chart Placeholder 6"))
+  #### Generate Volume Median Wait Time vs. Productivity Table
+  text_style <- fp_text(font.size = 16, bold = TRUE, font.family = "Calibri")
+  par_style <- fp_par(text.align = "center")
+  ppt_temp <- ph_with(ppt_temp, value = fpar(ftext("Count of Providers by Time to Appointment vs. % Productivity", prop = text_style), fp_p = par_style),  
+                      location = ph_location_label(ph_label = "Text Placeholder 7"))
+  ppt_Temp <- ph_with(ppt_temp, value = productivity_table_function(i),
+                      location = ph_location_label(ph_label = "Table Placeholder 9"))
+  
+  ### Productivity by Provider 
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Title and Content_Wide", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = paste0("Physician Productivity <50% - ",i), 
+                      location = ph_location_label(ph_label = "Title 1"))
+  ppt_temp <- ph_with(ppt_temp, value = productivity_provider_50_function(i),
+                      location = ph_location_label(ph_label = "Content Placeholder 2"))
+  
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Title and Content_Wide", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = paste0("Physician Productivity 50-74% - ",i), 
+                      location = ph_location_label(ph_label = "Title 1"))
+  ppt_temp <- ph_with(ppt_temp, value = productivity_provider_75_function(i),
+                      location = ph_location_label(ph_label = "Content Placeholder 2"))
+  
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Title and Content_Wide", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = paste0("Physician Productivity >=75% - ",i), 
+                      location = ph_location_label(ph_label = "Title 1"))
+  ppt_temp <- ph_with(ppt_temp, value = productivity_provider_100_function(i),
+                      location = ph_location_label(ph_label = "Content Placeholder 2"))
+  
+  
+  ## Create Recruitment and Growth Plan Slide ===========================
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Title and Content", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = paste0("Reruitment Planning - ",i), 
+                      location = ph_location_label(ph_label = "Title 1"))
+  
+  # 4. Enabling Factors ---------------------------------------------------------
+  ## Create Section Header
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Section Header", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = "Enabling Factors",
+                      location = ph_location_label(ph_label = "Title 1"))
+  
+  ## Create Domestic Utilization Slide ==========================================
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Title and Content", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = paste0("Domestic Utilization - ",i), 
+                      location = ph_location_label(ph_label = "Title 1"))
+  
+  ## Create Referral Volume Slide ===============================================
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Title and Content", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = paste0("Referral Volume - ",i), 
+                      location = ph_location_label(ph_label = "Title 1"))
+  
+  ## Create Utilization Slide ===================================================
+  ### Utilization Overall and by Site
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Utilization_Slide", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = paste0("Overall Utilization - ",i), 
+                      location = ph_location_label(ph_label = "Title 1"))
+  ppt_temp <- ph_with(ppt_temp, value = overall_day_util_tbl_function(i),
+                      location = ph_location_label(ph_label = "Chart Placeholder 6"))
+  text_style <- fp_text(font.size = 9, italic = TRUE, color = "#7f7f7f", font.family = "Calibri")
+  par_style <- fp_par(text.align = "left", padding.bottom = 5)
+  ppt_temp <- ph_with(ppt_temp, value = fpar(ftext("% Utilization by Turns is average weekday volume over total number of rooms available over visits/room/day benchmark specified for each department; % Utilization by Durations is total sum of scheduled visit durations with 20% adjustment factor/buffer over total room time available.", 
+                                                   prop = text_style), fp_p = par_style),  
+                      location = ph_location_label(ph_label = "Footer Placeholder 4"))
+
+  
+  ### Utilization by Hour - Weekdays
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Two Vertical Tables", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = paste0("Utilization by Hour - ",i), 
+                      location = ph_location_label(ph_label = "Title 1"))
+  ppt_Temp <- ph_with(ppt_temp, value = overall_weekday_util_hour(i),
+                      location = ph_location_label(ph_label = "Chart Placeholder 6"))
+  ppt_Temp <- ph_with(ppt_temp, value = site_weekday_util_hour(i),
+                      location = ph_location_label(ph_label = "Table Placeholder 9"))
+  
+  
+  # 5. Create Finance Slide ------------------------------------------------------
+  ## Create Section Header
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Section Header", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = "Finance",
+                      location = ph_location_label(ph_label = "Title 1"))
+
+  ## Create Finance Metrics Slide ================================================
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Title and Content", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = paste0("Finance - ",i), 
+                      location = ph_location_label(ph_label = "Title 1"))
+  
+  ## Create Payer Mix by Site Slide ==============================================
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "1_Two Horizontal Tables", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = paste0("Payer Mix - ",i), 
+                      location = ph_location_label(ph_label = "Title 1"))
+  ppt_temp <- ph_with(ppt_temp, value = dept_payer_mix(i),
+                     location = ph_location_label(ph_label = "Chart Placeholder 6"))
+
+
+  # 6. Create Metrics Overview/Action Plan Slide --------------------------------------------------
+  ## Section Header 
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Section Header", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = "Metrics Overview & Action Plan",
+                      location = ph_location_label(ph_label = "Title 1"))
+  
+  ## Metrics Overview Table
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Title and Content_Center", master = "Default Theme")
+  ppt_temp <- ppt_temp %>% 
+    ph_with(value = paste0(i," - ", reporting_YearQtr," ", "Metrics Overview"), 
+            location = ph_location_label(ph_label = "Title 1")) 
+  ppt_temp <- ph_with(ppt_temp, value = metrics_overview_tbl(i),
+                      location = ph_location_label(ph_label = "Content Placeholder 2"))
+  
+
+  ## Action Plan Table
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Action_Plan_Slide", master = "Default Theme")
+  ppt_temp <- ppt_temp %>% 
+    ph_with(value = paste0(i," - ","Action Plan"), 
+            location = ph_location_label(ph_label = "Title 1")) 
+  ppt_Temp <- ph_with(ppt_temp, value = actionPlan_output,
+                     location = ph_location_label(ph_label = "Content Placeholder 8"))
+
+
+  
+  # 7. Create Appendix Slide ----------------------------------------------------
+  ## Section Header 
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Section Header", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = "Appendix",
+                      location = ph_location_label(ph_label = "Title 1"))
+  
+  ## Metric Definitions
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Title and Content_Center", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = "Metric Definitions", 
+                      location = ph_location_label(ph_label = "Title 1"))
+  ppt_temp <- ph_with(ppt_temp, value = metrics_def_tbl,
+                      location = ph_location_label(ph_label = "Content Placeholder 2"))
+  
+  ## Utilization by Hour - Weekends
+  ppt_temp <- ppt_temp %>%
+    add_slide(layout = "Two Vertical Tables", master = "Default Theme")
+  ppt_temp <- ph_with(ppt_temp, value = paste0("Utilization by Hour (Weekends) - ",i), 
+                      location = ph_location_label(ph_label = "Title 1"))
+  ppt_temp <- ph_with(ppt_temp, value = overall_weekend_util_hour(i),
+                      location = ph_location_label(ph_label = "Chart Placeholder 6"))
+  ppt_temp <- ph_with(ppt_temp, value = site_weekend_util_hour(i),
+                      location = ph_location_label(ph_label = "Table Placeholder 9"))
+  
+
+  # Compiled Slide Output --------------------------------------------------------
+  print(ppt_temp, target=paste0(i,"_Test5.pptx"))
+  
+  # print(ppt_temp, target=paste0(i,"_",reporting_YearQtr,"_Performance Report.pptx"))
+  
+}
+
+```
