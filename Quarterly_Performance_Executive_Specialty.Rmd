@@ -1,0 +1,2128 @@
+---
+output:
+  html_document
+resource_files:
+- Logo/Mount_Sinai_Logo_H.png
+---
+
+<style type="text/css">
+div.main-container {
+  max-width: 1800px;
+  margin-left: 50px;
+  margin-right: 50px;
+}
+</style>
+
+<style>
+.tocify {
+color: black;
+max-width: 400px;
+margin-right: -50px;
+}
+.tocify .tocify-header {
+    position: fixed;
+    <!-- top: 50px; -->
+    margin-right: 0px;
+    <!-- right: -50px; -->
+    width: 350px;
+    border: solid 3px black;
+    height: 200px;
+ border: none;
+}
+.tocify .tocify-header .active {
+color: white;
+background: #d80b8c;
+font-weight: bold;
+}
+<!-- .tocify .tocify-item { -->
+<!-- background: white; -->
+<!-- color: black; -->
+<!--  border: none; -->
+<!-- } -->
+</style>
+
+
+<style>
+  .nav-pills>li>a:hover, .nav-pills>li>a:focus, .nav-pills>li.active>a,     .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus{
+     background-color: #212070;
+     }
+</style>
+
+
+<style>
+.container { width: 1800px; }
+h2 {
+  background-color: #dddedd;
+  color: black;
+  text-indent: 20px;
+  <!-- font-weight: bold; -->
+}
+h3 {
+  background-color: #f2f2f2;
+  color: black;
+  text-indent: 20px;
+  <!-- font-weight: bold; -->
+}
+h4 {
+  <!-- background-color: #dddedd; -->
+  <!-- color: black; -->
+  text-indent: 50px;
+  <!-- font-weight: bold; -->
+}
+</style>
+
+
+<style>
+.blackbox {
+  padding: 1em;
+  background: white;
+  color: black;
+  border: 2px solid #7f7f7f;
+  width: 100%;
+  position: center;
+  align: center;
+  margin: 0px auto;
+}
+.center {
+  text-align: left;
+  margin: 0px auto;
+}
+</style>
+
+<style>
+.my_div_class {
+  color: black;     
+  font-size: 12px; 
+  font-style: italic;
+}
+</style>
+<!-- ```{css toc-content, echo = FALSE} -->
+<!-- #TOC { -->
+<!--   right: 0px; -->
+<!--   margin: 20px -50px 25px 0px; -->
+<!-- } -->
+
+<!-- .main-container { -->
+<!--     margin-left: 0px; -->
+<!-- } -->
+<!-- ``` -->
+
+```{r Load Packages, echo = FALSE, warning = FALSE, message = FALSE}
+# Load packages -----------------------------------------------------------------------------------
+suppressMessages({
+  memory.limit(size = 8000000)
+  library(readxl)
+  library(writexl)
+  library(plyr)
+  library(dplyr)
+  library(data.table)
+  library(zoo)
+  library(shiny)
+  library(shinydashboard)
+  library(shinydashboardPlus)
+  library(shinyWidgets)
+  library(htmlwidgets)
+  library(lubridate)
+  library(tcltk)
+  library(tidyverse)
+  library(plotly)
+  library(knitr)
+  library(kableExtra)
+  library(leaflet)
+  library(grid)
+  library(gridExtra)
+  library(eeptools)
+  library(ggQC)
+  library(zipcodeR)
+  library(utils)
+  library(scales)
+  library(chron)
+  library(bupaR)
+  library(shiny)
+  library(DT)
+  library(DiagrammeR)
+  library(shinyalert)
+  library(edeaR)
+  library(processmapR)
+  library(processmonitR)
+  library(processanimateR)
+  library(tidyr)
+  library(lubridate)
+  library(RColorBrewer)
+  library(DiagrammeR)
+  library(ggplot2)
+  library(leaflet)
+  library(readr)
+  library(highcharter)
+  library(ggforce) # for 'geom_arc_bar'
+  library(packcircles) # for packed circle graph
+  library(viridis)
+  library(ggiraph)
+  library(treemapify)
+  library(treemap)
+  library(broom)
+  library(extrafont)
+  library(tis) # for US holidays
+  library(vroom)
+  library(sjmisc)
+  library(tools)
+  library(here)
+  library(shinyBS)
+  library(shinyscreenshot)
+  library(fasttime)
+  library(shinycssloaders)
+  library(feather)
+  # library(zipcodeR)
+  library(formattable)
+  library(shinyjs)
+  library(janitor)
+  library(patchwork)
+  library(flexdashboard)
+  # library(tidyverse)
+  # library(viridis)
+  # library(hrbrthemes)
+  # library(plotly)
+  # install.packages("bsts")
+  library(bsts)
+  library(reactable)
+  # install.packages("reactablefmtr")
+  library(reactablefmtr)
+  library(svDialogs)
+  library(openxlsx)
+  library(flextable)
+  library(officedown)
+  library(officer)
+  library(magrittr)
+  library(webshot) 
+  library(png)
+  library(ggh4x)
+})
+
+```
+
+
+```{r Graph asthetics, echo = FALSE, warning = FALSE, message = FALSE}
+### Color Functions for Graphs ============================================================
+
+# Mount Sinai corporate colors "USE THIS TO ADD COLORS"
+MountSinai_colors <- c(
+  `dark purple`  = "#212070",
+  `dark pink`    = "#d80b8c",
+  `dark blue`    = "#00aeef",
+  `dark grey`    = "#7f7f7f",
+  `yellow`       = "#ffc000",
+  `purple`       = "#7030a0",
+  `med purple`   = "#5753d0",
+  `med pink`     = "#f75dbe",
+  `med blue`     = "#5cd3ff",
+  `med grey`     = "#a5a7a5",
+  `light purple` = "#c7c6ef",
+  `light pink`   = "#fcc9e9",
+  `light blue`   = "#c9f0ff",
+  `light grey`   = "#dddedd"
+  )
+
+# Function to extract Mount Sinai colors as hex codes
+# Use Character names of MountSinai_colors
+
+MountSinai_cols <- function(...) {
+  cols <- c(...)
+  
+  if (is.null(cols))
+    return (MountSinai_colors)
+  
+  MountSinai_colors[cols]
+}
+
+# Color Function that can be used to call all colors is "MountSinai_cols()"
+# Use in ggplot 
+
+  #MountSinai_cols()       # will provide all colors and their hex codes in a table 
+  #MountSinai_cols("pink") # will provide color name and the hex code for the pink color
+
+# Create palettes 
+MountSinai_palettes <- list(
+  `all`   = MountSinai_cols("dark purple","dark pink","dark blue","dark grey",
+                            "med purple","med pink","med blue","med grey", 
+                            "light purple","light pink","light blue","light grey"),
+  
+  `main`  = MountSinai_cols("dark purple","dark pink","dark blue","dark grey"),
+  
+  `purple`  = MountSinai_cols("dark purple","med purple","light purple"),
+  
+  `pink`  = MountSinai_cols("dark pink","med pink","light pink"),
+  
+  `blue`  = MountSinai_cols("dark blue", "med blue", "light blue"),
+  
+  `grey`  = MountSinai_cols("dark grey", "med grey", "light grey"),
+  
+  `purpleGrey` = MountSinai_cols("dark purple", "dark grey"),
+  
+  `pinkBlue` = MountSinai_cols("dark pink", "dark blue")
+  
+)
+
+# MountSinai_palettes
+# Return function to interpolate a Mount Sinai color palette
+# default value is the main palette, reverse = True will change the order
+
+MountSinai_pal <- function(palette = "all", reverse = FALSE, ...) {
+  pal <- MountSinai_palettes[[palette]]
+  
+  if (reverse) pal <- rev(pal)
+  
+  colorRampPalette(pal, ...)
+}
+
+
+
+# Scale Function for ggplot can be used instead of scale_color_manual
+scale_color_MountSinai <- function(palette = "all", discrete = TRUE, reverse = FALSE, ...) {
+  pal <- MountSinai_pal(palette = palette, reverse = reverse)
+  
+  if (discrete) {
+    discrete_scale("colour", paste0("MountSinai_", palette), palette = pal, ...)
+  } else {
+    scale_color_gradientn(colours = pal(256), ...)
+  }
+}
+
+# Scale Fill for ggplot insetead of scale_fill_manual 
+scale_fill_MountSinai <- function(palette = "all", discrete = TRUE, reverse = FALSE, ...) {
+  pal <- MountSinai_pal(palette = palette, reverse = reverse)
+
+  if (discrete) {
+    discrete_scale("fill", paste0("MountSinai_", palette), palette = pal, ...)
+  } else {
+    scale_fill_gradientn(colours = pal(256), ...)
+  }
+}
+
+# Use in ggplot 
+  # scale_color_MountSinai("main")
+
+```
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+<style>
+.table {
+table-layout: fixed;
+width: 100%;
+}
+</style>
+
+```{r Global Functions, echo = FALSE, warning = FALSE, message = FALSE}
+
+'%!in%' <- function(x,y)!('%in%'(x,y)) # Does not include
+not_all_na <- function(x) all(!is.na(x)) # Exclude columns with All NAs
+
+```
+
+
+
+```{r Quarterly Processed Data Files, echo = FALSE, warning = FALSE, message = FALSE, results='hide'}
+
+# Referrals Tables -------------------------------------------------------------
+monthly_referral_vol <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/monthly_referral_vol.rds")
+
+# Volume Tables ----------------------------------------------------------------
+## Arrived monthly volume ======================================================
+monthly_vol <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/monthly_vol.rds")
+## Arrived Epic department quarterly volume ====================================
+vol_zip_code <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/vol_zip_code.rds")
+
+# Access Tables ----------------------------------------------------------------
+## Wait Time Horizon by Specialty ==============================================
+waitTime_dist_specialty <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/waitTime_dist_specialty.rds")
+waitTime_dist_site <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/waitTime_dist_site.rds")
+                                   
+## Median Wait Time ============================================================
+waitTime_mshs <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/waitTime_mshs.rds")
+waitTime_site <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/waitTime_site.rds")
+waitTime_prov <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/waitTime_prov.rds")
+
+# Payor Mix Table --------------------------------------------------------------
+payer_mix_quarter_site <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/payer_mix_quarter_site.rds")
+
+
+# # Utilization Data -------------------------------------------------------------
+# ## Location=====================================================================
+# readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_turns_merged.rds") # By Turns
+# readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_turns_summary.rds") # By Turns
+# 
+# readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_dur_merged.rds") # By Durations
+# readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/locations_util_dur_summary.rds") # By Durations
+# 
+# ## Provider ====================================================================
+# readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_util_turns_summary.rds") # By Turns
+# readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_util_dur_summary.rds") # By Turns
+# readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/provider_util_dur_merged.rds") # By Turns
+
+```
+
+
+```{r Global Variables, echo = FALSE, warning = FALSE, message = FALSE}
+
+quarter_start <- "2021-01-01"
+quarter_end <- "2022-07-01"
+
+quarters_list <- sort(unique(as.yearqtr(seq(from=as.Date(quarter_start) , to=floor_date(as.Date(quarter_end) -1 - months(1), "month"), by="month"))))
+
+# reporting_date <- max((scheduling_data_raw %>% filter(Appt.Status == "Arrived") %>% filter(Appt.DateYear <= Sys.Date()))$Appt.DateYear)
+reporting_year <- format(quarters_list[length(quarters_list)], "%Y") ## Create year column
+reporting_YearQtr <- quarters_list[length(quarters_list)]
+
+data_quarters <- tail(quarters_list,5)
+
+# Specify campuses to include
+inc_sites <- c("NETWORK","MSM","MSH-MSDFP","ONCOLOGY","MSW","MSBI","MSUS","MSH- AMBULATORY CARE","MSDD")
+
+# Specialties Breakdown 
+key_specialties <- c("Cardiovascular Institute/Cardiology", "Medicine - Endocrinology", "Medicine - Gastroenterology",
+                     "Medicine - Primary Care", "Neurology", "OB-GYN",
+                     "Ophthalmology", "Orthopedics", "Otolaryngology", "Tisch Institute/Hematology Oncology",
+                     "Urology")
+
+# Annualized Month Variables
+min_month <- "Jan"
+max_month <- format(as.Date(quarter_end)-1, "%b")
+
+```
+
+
+```{r Data Processing, echo = FALSE, warning = FALSE, message = FALSE}
+
+monthly_vol <- monthly_vol %>%
+  mutate(Specialty = ifelse(is.na(Campus.Specialty.SubGroup), Campus.Specialty.Group, 
+                                paste0(Campus.Specialty.Group, " - ",Campus.Specialty.SubGroup))) 
+
+vol_zip_code <- vol_zip_code %>%
+  mutate(Specialty = ifelse(is.na(Campus.Specialty.SubGroup), Campus.Specialty.Group, 
+                                paste0(Campus.Specialty.Group, " - ",Campus.Specialty.SubGroup))) 
+
+waitTime_dist_specialty <- waitTime_dist_specialty %>%
+  mutate(Specialty = ifelse(is.na(Campus.Specialty.SubGroup), Campus.Specialty.Group, 
+                                paste0(Campus.Specialty.Group, " - ",Campus.Specialty.SubGroup))) 
+
+waitTime_dist_site<- waitTime_dist_site %>%
+  mutate(Specialty = ifelse(is.na(Campus.Specialty.SubGroup), Campus.Specialty.Group, 
+                                paste0(Campus.Specialty.Group, " - ",Campus.Specialty.SubGroup)))
+
+waitTime_mshs <- waitTime_mshs %>%
+  mutate(Specialty = ifelse(is.na(Campus.Specialty.SubGroup), Campus.Specialty.Group, 
+                                paste0(Campus.Specialty.Group, " - ",Campus.Specialty.SubGroup))) 
+
+waitTime_site <- waitTime_site %>%
+  mutate(Specialty = ifelse(is.na(Campus.Specialty.SubGroup), Campus.Specialty.Group, 
+                                paste0(Campus.Specialty.Group, " - ",Campus.Specialty.SubGroup))) 
+
+monthly_referral_vol <- monthly_referral_vol %>%
+  mutate(Specialty = ifelse(is.na(Campus.Specialty.SubGroup), Campus.Specialty.Group, 
+                                paste0(Campus.Specialty.Group, " - ",Campus.Specialty.SubGroup)))
+
+waitTime_prov <- waitTime_prov %>%
+  mutate(Specialty = ifelse(is.na(Campus.Specialty.SubGroup), Campus.Specialty.Group, 
+                                paste0(Campus.Specialty.Group, " - ",Campus.Specialty.SubGroup)))
+
+payer_mix_quarter_site <- payer_mix_quarter_site %>%
+  mutate(Specialty = ifelse(is.na(Campus.Specialty.SubGroup), Campus.Specialty.Group, 
+                                paste0(Campus.Specialty.Group, " - ",Campus.Specialty.SubGroup)))
+
+```
+
+
+```{r Productivity Data Import, echo = FALSE, warning = FALSE, message = FALSE}
+
+productivity_raw <- read_excel("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/performance-report/All Productivity 2021-Jun 2022 by dept.xlsx")
+productivity_raw <- productivity_raw %>%
+  filter(`Master Dept` %!in% c("BIMG","MS DOCS","West Care/ West Park","HUDSON YARDS","MANHASSET")) %>%
+  filter(!is.na(`Master Dept`)) %>%
+  mutate(NPI = as.character(NPI)) %>%
+  pivot_longer(17:length(productivity_raw),
+               names_to = "Quarter",
+               values_to = "Productivity") %>%
+  mutate(Quarter = as.yearqtr(Quarter))
+
+waitTime_prov <- merge(waitTime_prov, 
+                       productivity_raw[,c("NPI", "Quarter", "Productivity")],
+                       by.x = c("NPI", "Appt.Made.YearQtr"),
+                       by.y = c("NPI", "Quarter"), all.x = TRUE, all.y = FALSE)
+
+productivity_raw <- merge(productivity_raw,
+                         waitTime_prov[,c("NPI", "Appt.Made.YearQtr", "Campus", "Specialty", "med_wait")],
+                          by.x = c("NPI", "Quarter"),
+                          by.y = c("NPI", "Appt.Made.YearQtr"))
+productivity_raw <- productivity_raw %>%
+  arrange(Productivity)
+
+```
+
+
+```{r Historical Metrics by Site, echo = FALSE, warning = FALSE, message = FALSE}
+
+ # Median Time to New Appointment
+  waitTime_mshs_overview <- waitTime_mshs %>%
+    # filter(Appt.Made.YearQtr %in% c(data_quarters[length(data_quarters)], 
+    #                              data_quarters[length(data_quarters)-1])) %>%
+    filter(New.PT2 == "New") %>%
+    mutate(med_wait = as.numeric(med_wait),
+           Campus = "MSHS*") 
+  # pivot_wider(names_from = Appt.Made.YearQtr,
+  #             values_from = med_wait) %>%
+  # mutate(med_wait_change = ifelse(`2022 Q2` < `2022 Q1`, "Improved",
+  #                                 ifelse(`2022 Q2` > `2022 Q1`, "Not Improved", "No Change"))) %>%
+  # rename(med_wait = `2022 Q2`) %>%
+  # ungroup() %>%
+  # dplyr::select(-c(New.PT2, `2022 Q1`))
+
+  waitTime_site_overview <- waitTime_site %>%
+    # filter(Appt.Made.YearQtr %in% c(data_quarters[length(data_quarters)], 
+    #                              data_quarters[length(data_quarters)-1])) %>%
+    filter(New.PT2 == "New") %>%
+    mutate(med_wait = as.numeric(med_wait)) 
+    # pivot_wider(names_from = Appt.Made.YearQtr,
+    #             values_from = med_wait) %>%
+    # mutate(med_wait_change = ifelse(`2022 Q2` < `2022 Q1`, "Improved",
+    #                               ifelse(`2022 Q2` > `2022 Q1`, "Not Improved", "No Change"))) %>%
+    # rename(med_wait = `2022 Q2`) %>%
+    # ungroup() %>%
+    # dplyr::select(-c(New.PT2, `2022 Q1`))
+      
+    waitTime_overview <- bind_rows(waitTime_mshs_overview, waitTime_site_overview)
+  waitTime_overview <- waitTime_overview %>%
+    ungroup() %>%
+    dplyr::select(-c(Campus.Specialty.Group, Campus.Specialty.SubGroup)) %>%
+    rename(Appt.YearQtr = Appt.Made.YearQtr) %>%
+    mutate(Appt.YearQtr = as.yearqtr(Appt.YearQtr))
+  
+  
+  # New Patients Scheduled <=14 days 
+  newPTs_mshs_overview <- waitTime_dist_site %>%
+    filter(Campus %!in% c("MSDD","NETWORK")) %>%
+    filter(New.PT2 == "New") %>% 
+    group_by(Specialty, Appt.Made.YearQtr, New.PT2, group) %>%
+    summarise(total = sum(total)) %>%
+    group_by(Specialty, Appt.Made.YearQtr, New.PT2) %>%
+    mutate(total_new = sum(total)) %>%
+    mutate(new_perc = round(total/sum(total),2)) %>%
+    filter(group %in% c("0-7","8-14")) %>%
+    group_by(Specialty, Appt.Made.YearQtr, total_new) %>%
+    summarise(new_perc = sum(new_perc)) %>%
+    mutate(Campus = "MSHS*") 
+    # pivot_wider(names_from = Appt.Made.YearQtr,
+    #             values_from = new_perc) %>%
+    # mutate(new_perc_change = ifelse(`2022 Q2` > `2022 Q1`, "Improved",
+    #                               ifelse(`2022 Q2` < `2022 Q1`, "Not Improved", "No Change"))) %>%
+    # rename(new_perc = `2022 Q2`) %>%
+    # dplyr::select(-c(`2022 Q1`))
+  
+  newPTs_site_overview <-  waitTime_dist_site %>%
+   # filter(Appt.Made.YearQtr %in% c(data_quarters[length(data_quarters)], 
+   #                               data_quarters[length(data_quarters)-1])) %>%
+    filter(New.PT2 == "New") %>% 
+    group_by(Specialty, Campus, Appt.Made.YearQtr, New.PT2, group) %>%
+    summarise(total = sum(total)) %>%
+    group_by(Specialty, Campus, Appt.Made.YearQtr, New.PT2) %>%
+    mutate(total_new = sum(total)) %>%
+    mutate(new_perc = round(total/sum(total),2)) %>%
+    filter(group %in% c("0-7","8-14")) %>%
+    group_by(Specialty, Campus, Appt.Made.YearQtr, total_new) %>%
+    summarise(new_perc = sum(new_perc)) 
+    # pivot_wider(names_from = Appt.Made.YearQtr,
+    #             values_from = new_perc) %>%
+    # mutate(new_perc_change = ifelse(`2022 Q2` > `2022 Q1`, "Improved",
+    #                               ifelse(`2022 Q2` < `2022 Q1`, "Not Improved", "No Change"))) %>%
+    # rename(new_perc = `2022 Q2`) %>%
+    # dplyr::select(-c(`2022 Q1`))
+  
+  newPTs_overview <- bind_rows(newPTs_mshs_overview, newPTs_site_overview)
+  newPTs_overview <- newPTs_overview %>%
+    rename(Appt.YearQtr = Appt.Made.YearQtr) %>%
+    mutate(Appt.YearQtr = as.yearqtr(Appt.YearQtr))
+  
+  
+  # Quarterly Volume Change
+  vol_var_mshs_overview <- monthly_vol %>%
+      filter(Campus %!in% c("MSDD","NETWORK")) %>%
+      filter(Visit.Method == "Total") %>%
+      # filter(Appt.YearQtr %in% c(data_quarters[length(data_quarters)], 
+      #                            data_quarters[length(data_quarters)-1], data_quarters[length(data_quarters)-4])) %>%
+      mutate(Appt.YearQtr = as.character(Appt.YearQtr)) %>%
+      group_by( Specialty, Appt.YearQtr) %>%
+      summarise(total = sum(monthly_vol)) %>%
+    mutate(Campus = "MSHS*")
+    # group_by(Campus.Specialty.Group, Campus.Specialty.SubGroup) %>%
+    # filter(total)
+    # pivot_wider(names_from = Appt.YearQtr,
+    #               values_from = total,
+    #             values_fill = 0) 
+  
+   # vol_var_mshs_overview$var_last_qrt <- round((vol_var_mshs_overview[[5]]/vol_var_mshs_overview[[4]])-1,2)
+   # vol_var_mshs_overview$ var_last_yr <- round((vol_var_mshs_overview[[5]]/vol_var_mshs_overview[[3]])-1,2)  
+   #  
+   # vol_var_mshs_overview <- vol_var_mshs_overview %>%
+   #   mutate(Campus = "MSHS") %>%
+   #   dplyr::select(Campus.Specialty.Group, Campus.Specialty.SubGroup, Campus, var_last_qrt, var_last_yr)
+    
+   
+   vol_var_site_overview <- monthly_vol %>%
+     filter(Visit.Method == "Total") %>%
+     # filter(Appt.YearQtr %in% c(data_quarters[length(data_quarters)], 
+     #                            data_quarters[length(data_quarters)-1], data_quarters[length(data_quarters)-4])) %>%
+     mutate(Appt.YearQtr = as.character(Appt.YearQtr)) %>%
+     group_by(Specialty, Campus, Appt.YearQtr) %>%
+     summarise(total = sum(monthly_vol)) 
+    # group_by(Campus.Specialty.Group, Campus.Specialty.SubGroup) %>%
+    # filter(total)
+   #   pivot_wider(names_from = Appt.YearQtr,
+   #               values_from = total,
+   #               values_fill = 0) 
+   # 
+   # vol_var_site_overview$var_last_qrt <- round((vol_var_site_overview[[6]]/vol_var_site_overview[[5]])-1,2)
+   # vol_var_site_overview$ var_last_yr <- round((vol_var_site_overview[[6]]/vol_var_site_overview[[4]])-1,2) 
+   #  
+   # vol_var_site_overview <- vol_var_site_overview %>%
+   #   dplyr::select(Campus.Specialty.Group, Campus.Specialty.SubGroup, Campus, var_last_qrt, var_last_yr)
+  
+    
+   vol_var_overview <- bind_rows(vol_var_mshs_overview, vol_var_site_overview) 
+   vol_var_overview <- vol_var_overview %>%
+     mutate(Appt.YearQtr = as.yearqtr(Appt.YearQtr))
+
+   
+   
+   # Referrals Conversion Rate
+    conversion_data <- monthly_referral_vol %>%
+      # filter(Received.YearQtr %in% reporting_YearQtr) %>%
+      mutate(AppointmentStatus = ifelse(ApptStatusFinal == "Completed", "Arrived",
+                                        ifelse(ApptStatusFinal == "Left without seen", "No Show", ApptStatusFinal))) 
+    
+    conversion_rate_mshs_overview <- conversion_data %>%
+      filter(Campus %!in% c("MSDD","NETWORK")) %>%
+      mutate(Campus = "MSHS*") %>%
+      group_by(Specialty, Campus, Received.YearQtr, ApptStatusFinal) %>%
+      summarise(total = sum(total)) %>%
+      group_by(Specialty, Received.YearQtr, Campus) %>%
+      pivot_wider(names_from = ApptStatusFinal,
+                  values_from = total, 
+                  values_fill = 0) %>%
+      mutate(Total = sum(c_across(Arrived:Scheduled))) %>%
+      mutate(`Conversion Rate` = round((Total - Pending)/Total,2),
+             `Completion Rate` = round(Arrived/Total,2)) %>%
+      dplyr::select(Specialty, Campus, Received.YearQtr, `Conversion Rate`) 
+    
+    
+    conversion_rate_site_overview <- conversion_data %>%
+      group_by(Specialty, Campus, Received.YearQtr, ApptStatusFinal) %>%
+      summarise(total = sum(total)) %>%
+      group_by(Specialty, Campus, Received.YearQtr) %>%
+      pivot_wider(names_from = ApptStatusFinal,
+                  values_from = total, 
+                  values_fill = 0) %>%
+     mutate(Total = sum(c_across(Arrived:Scheduled))) %>%
+     mutate(`Conversion Rate` = round((Total - Pending)/Total,2),
+            `Completion Rate` = round(Arrived/Total,2)) %>%
+     dplyr::select(Campus, `Conversion Rate`)
+    
+    
+    conversion_rate_overview <- bind_rows(conversion_rate_mshs_overview, conversion_rate_site_overview)
+    conversion_rate_overview <- conversion_rate_overview %>%
+      rename(Appt.YearQtr = Received.YearQtr) %>%
+      mutate(Appt.YearQtr = as.yearqtr(Appt.YearQtr))
+    
+    # % Physicians <p50
+    p50_mshs_overview <- productivity_raw %>%
+      mutate(temp_site = ifelse(Site == "MSW/MSM", "MSW", Site)) %>%
+      mutate(temp_site = ifelse(temp_site == "MSH", "MSH-MSDFP", temp_site)) %>%
+      filter(`Master Dept` %!in% c("BIMG","MS DOCS","West Care/ West Park","HUDSON YARDS","MANHASSET")) %>%
+      filter(!is.na(`Master Dept`)) %>%
+      filter(`2022 Reported CFTE` >=0.25) %>%
+      dplyr::select(Specialty, Campus, Quarter, NPI, Physician, `2022 Calculate %`) %>%
+      distinct() %>%
+      mutate(group = ifelse(`2022 Calculate %` >=.50, "Yes","No")) %>%
+      group_by(Specialty, Quarter, group) %>%
+      summarise(total = n()) %>%
+      group_by(Specialty, Quarter) %>%
+      mutate(p50 = round(total/sum(total),2)) %>%
+      filter(group == "Yes") %>%
+      dplyr::select(Specialty, Quarter, p50) %>%
+      mutate(Campus = "MSHS*")
+    
+
+    p50_site_overview <- productivity_raw %>%
+      mutate(temp_site = ifelse(Site == "MSW/MSM", "MSW", Site)) %>%
+      mutate(temp_site = ifelse(temp_site == "MSH", "MSH-MSDFP", temp_site)) %>%
+      filter(`Master Dept` %!in% c("BIMG","MS DOCS","West Care/ West Park","HUDSON YARDS","MANHASSET")) %>%
+      filter(!is.na(`Master Dept`)) %>%
+      filter(`2022 Reported CFTE` >=0.25) %>%
+      dplyr::select(Specialty, Campus, Quarter, NPI, Physician, `2022 Calculate %`) %>%
+      distinct() %>%
+      mutate(group = ifelse(`2022 Calculate %` >=.50, "Yes","No")) %>%
+      group_by(Specialty, Campus, Quarter, group) %>%
+      summarise(total = n()) %>%
+      group_by(Specialty, Campus, Quarter) %>%
+      mutate(p50 = round(total/sum(total),2)) %>%
+      filter(group == "Yes") %>%
+      dplyr::select(Specialty, Campus, Quarter, p50) 
+    
+    
+    p50_overview <- bind_rows(p50_mshs_overview, p50_site_overview)
+    p50_overview <- p50_overview %>%
+      rename(Appt.YearQtr = Quarter) %>%
+      mutate(Appt.YearQtr = as.yearqtr(Appt.YearQtr))
+    
+    
+    # % Physicians <p75
+    p75_mshs_overview <- productivity_raw %>%
+      mutate(temp_site = ifelse(Site == "MSW/MSM", "MSW", Site)) %>%
+      mutate(temp_site = ifelse(temp_site == "MSH", "MSH-MSDFP", temp_site)) %>%
+      filter(`Master Dept` %!in% c("BIMG","MS DOCS","West Care/ West Park","HUDSON YARDS","MANHASSET")) %>%
+      filter(!is.na(`Master Dept`)) %>%
+      filter(`2022 Reported CFTE` >=0.25) %>%
+      dplyr::select(Specialty, Campus, Quarter, NPI, Physician, `2022 Calculate %`) %>%
+      distinct() %>%
+      mutate(group = ifelse(`2022 Calculate %` >=.75, "Yes","No")) %>%
+      group_by(Specialty, Quarter, group) %>%
+      summarise(total = n()) %>%
+      group_by(Specialty, Quarter) %>%
+      mutate(p75 = round(total/sum(total),2)) %>%
+      filter(group == "Yes") %>%
+      dplyr::select(Specialty, Quarter, p75) %>%
+      mutate(Campus = "MSHS*")
+    
+
+    p75_site_overview <- productivity_raw %>%
+      mutate(temp_site = ifelse(Site == "MSW/MSM", "MSW", Site)) %>%
+      mutate(temp_site = ifelse(temp_site == "MSH", "MSH-MSDFP", temp_site)) %>%
+      filter(`Master Dept` %!in% c("BIMG","MS DOCS","West Care/ West Park","HUDSON YARDS","MANHASSET")) %>%
+      filter(!is.na(`Master Dept`)) %>%
+      filter(`2022 Reported CFTE` >=0.25) %>%
+      dplyr::select(Specialty, Campus, Quarter, NPI, Physician, `2022 Calculate %`) %>%
+      distinct() %>%
+      mutate(group = ifelse(`2022 Calculate %` >=.75, "Yes","No")) %>%
+      group_by(Specialty, Campus, Quarter, group) %>%
+      summarise(total = n()) %>%
+      group_by(Specialty, Campus, Quarter) %>%
+      mutate(p75 = round(total/sum(total),2)) %>%
+      filter(group == "Yes") %>%
+      dplyr::select(Specialty, Campus, Quarter, p75) 
+    
+    
+    p75_overview <- bind_rows(p75_mshs_overview, p75_site_overview)
+    p75_overview <- p75_overview %>%
+      rename(Appt.YearQtr = Quarter) %>%
+      mutate(Appt.YearQtr = as.yearqtr(Appt.YearQtr))
+    
+    # Merge all metrics
+    metrics_overview_site_list <- list(waitTime_overview, newPTs_overview, vol_var_overview,
+                                   conversion_rate_overview, p50_overview, p75_overview)
+    
+    metrics_overview_site <- metrics_overview_site_list %>%
+      reduce(left_join, by = c("Specialty", "Campus", "Appt.YearQtr")) %>%
+      filter(Specialty %!in% c("Needs Review","Exclude","Needs Review - Data Integrity")) %>%
+      arrange(Appt.YearQtr, Specialty)
+    
+```
+
+
+```{r Access Metric Trending, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Median Wait Time vs. % Patients Scheduled <=14 Days
+specialty_site_graph <- function(index){
+  # specialty <- "Dermatology"
+  # index <- 1
+
+  metrics_tbl <- metrics_overview_site %>%
+    filter(Specialty == specialty) %>%
+    # filter(Specialty %in% (metrics_site_tbl[index, c("Specialty")])$Specialty) %>%
+    filter(Campus %in% (metrics_site_tbl[index, c("Campus")])$Campus) %>%
+    mutate(new_perc = new_perc*100,
+           p50 = p50*100,
+           p75 = p75*100)
+  
+  access_graph <- 
+    highchart() %>%
+      hc_yAxis_multiples(
+        list(title = list(text = "% of New Patients"), lineWidth = 3,
+             labels = list(format = '{value}%')),
+        list(title = list(text = "Median Days"), showLastLabel = FALSE, opposite = TRUE)
+        ) %>%
+      hc_xAxis(title = list(text = ""),
+               categories = as.character(metrics_tbl$Appt.YearQtr)
+               # type = "datetime",
+               # labels = list(format = '{value:%m/%}')
+               # dateTimeLabelFormats = list(month = '%Y-%m') 
+               ) %>%
+      hc_add_series(name = "% of New Patients Scheduled <=14 Days",
+                data = metrics_tbl$new_perc,
+                type = 'column',
+                color='#212070',
+                dataLabels = list(enabled = TRUE, format='{point.y}%')) %>%
+      hc_add_series(name = "New Patient Wait Time",
+                data = metrics_tbl$med_wait,
+                type = "line", yAxis = 1,
+                color='#d80b8c',
+                lineColor='#d80b8c',
+                dataLabels = list(enabled = TRUE, format='{point.y} Days')) %>%
+      hc_legend(align = "left", verticalAlign = "top", itemStyle = list(fontFamily ='Calibri',
+                                                                    color ='black', fontSize = "14px")) %>%
+      hc_title(text = "New Patient Access", align = "left", 
+           style = list(fontWeight = 'bold', fontSize = "22px", fontFamily = "Calibri")) %>%
+      hc_subtitle(text = paste0((metrics_site_tbl[index, c("Campus")])$Campus," ", 
+                             (metrics_site_tbl[index, c("Specialty")])$Specialty),
+                  align = "left", style = list(fontFace = "italic", fontSize = "18px", fontFamily = "Calibri")) %>%
+      hc_tooltip(shared = TRUE, borderColor = "black")
+  
+  new_patient_graph <- 
+    highchart() %>%
+      hc_yAxis_multiples(
+        list(title = list(text = "Total New Patients"), lineWidth = 3),
+        list(title = list(text = "% of New Patients"), 
+             labels = list(format = '{value}%'), showLastLabel = FALSE, opposite = TRUE)
+        ) %>%
+      hc_xAxis(title = list(text = ""),
+               categories = as.character(metrics_tbl$Appt.YearQtr)
+               # type = "datetime",
+               # labels = list(format = '{value:%m/%}')
+               # dateTimeLabelFormats = list(month = '%Y-%m') 
+               ) %>%
+      hc_add_series(name = "Total New Patients",
+                data = metrics_tbl$total_new,
+                type = 'column',
+                color='#a5a7a5',
+                dataLabels = list(enabled = TRUE, format='{point.y}')) %>%
+       hc_add_series(name = "% of New Patients Scheduled <=14 Days",
+                data = metrics_tbl$new_perc,
+                type = "line", yAxis = 1,
+                color='#d80b8c',
+                lineColor='#d80b8c',
+                dataLabels = list(enabled = TRUE, format='{point.y}%')) %>%
+      hc_legend(align = "left", verticalAlign = "top", itemStyle = list(fontFamily ='Calibri',
+                                                                    color ='black', fontSize = "14px")) %>%
+      hc_title(text = "New Patient Volume vs. Access", align = "left", 
+           style = list(fontWeight = 'bold', fontSize = "22px", fontFamily = "Calibri")) %>%
+      hc_subtitle(text = paste0((metrics_site_tbl[index, c("Campus")])$Campus," ", 
+                             (metrics_site_tbl[index, c("Specialty")])$Specialty),
+                  align = "left", style = list(fontFace = "italic", fontSize = "18px", fontFamily = "Calibri")) %>%
+      hc_tooltip(shared = TRUE, borderColor = "black")
+  
+  
+  productivity_graph <- 
+    highchart() %>%
+      hc_yAxis_multiples(
+        list(title = list(text = "% of New Patients"), lineWidth = 3,
+             labels = list(format = '{value}%')),
+        list(title = list(text = "% of Providers"), lineWidth = 3,
+             labels = list(format = '{value}%'), showLastLabel = FALSE, opposite = TRUE)
+        ) %>%
+      hc_xAxis(title = list(text = ""),
+               categories = as.character(metrics_tbl$Appt.YearQtr)
+               # type = "datetime",
+               # labels = list(format = '{value:%m/%}')
+               # dateTimeLabelFormats = list(month = '%Y-%m') 
+               ) %>%
+      hc_add_series(name = "% of New Patients Scheduled <=14 Days",
+                data = metrics_tbl$new_perc,
+                type = "column",
+                color='#212070',
+                # linColor='#a5a7a5',
+                dataLabels = list(enabled = TRUE, format='{point.y}%')) %>%
+      hc_add_series(name = "% Providers Above P50",
+                data = metrics_tbl$p50,
+                type = 'line', yAxis = 1,
+                 color='#d80b8c',
+                lineColor='#d80b8c',
+                dataLabels = list(enabled = TRUE, format='{point.y}%')) %>%
+      hc_add_series(name = "% Providers Above P75",
+                data = metrics_tbl$p75,
+                type = 'line',  yAxis = 1,
+                color='#00aeef',
+                linColor='#00aeef',
+                dataLabels = list(enabled = TRUE, format='{point.y}%')) %>%
+       
+      hc_legend(align = "left", verticalAlign = "top", itemStyle = list(fontFamily ='Calibri',
+                                                                    color ='black', fontSize = "14px")) %>%
+      hc_title(text = "New Patient Productivity vs. Access", align = "left", 
+           style = list(fontWeight = 'bold', fontSize = "22px", fontFamily = "Calibri")) %>%
+      hc_subtitle(text = paste0((metrics_site_tbl[index, c("Campus")])$Campus," ", 
+                             (metrics_site_tbl[index, c("Specialty")])$Specialty),
+                  align = "left", style = list(fontFace = "italic", fontSize = "18px", fontFamily = "Calibri")) %>%
+      hc_tooltip(shared = TRUE, borderColor = "black")
+    
+ 
+  hw_grid(access_graph, new_patient_graph, productivity_graph, ncol = 3, rowheight = 400)
+  
+  }
+
+```
+
+
+
+```{r New Volume Trending, echo = FALSE, warning = FALSE, message = FALSE}
+
+# New Patient Volume vs. % Patients Scheduled <=14 DAys
+new_trending_graph <- function(specialty){
+  # specialty <- "Otolaryngology"
+  
+  new_tbl <- metrics_overview_site %>%
+    filter(Specialty == specialty) %>%
+    mutate(new_perc = new_perc*100)
+  
+  map(unique(new_tbl$Campus), function(x){
+    highchart() %>%
+      hc_yAxis_multiples(
+        list(title = list(text = "Total New Patients"), lineWidth = 3),
+        list(title = list(text = "% of New Patients"), 
+             labels = list(format = '{value}%'), showLastLabel = FALSE, opposite = TRUE)
+        ) %>%
+      hc_xAxis(title = list(text = ""),
+               categories = as.character(new_tbl$Appt.YearQtr)
+               # type = "datetime",
+               # labels = list(format = '{value:%m/%}')
+               # dateTimeLabelFormats = list(month = '%Y-%m') 
+               ) %>%
+      hc_add_series(name = "Total New Patients",
+                data = (new_tbl %>% filter(Campus == x))$total_new,
+                type = 'column',
+                color='#a5a7a5',
+                dataLabels = list(enabled = TRUE, format='{point.y}')) %>%
+       hc_add_series(name = "% of New Patients Scheduled <=14 Days",
+                data = (new_tbl %>% filter(Campus == x))$new_perc,
+                type = "line", yAxis = 1,
+                color='#d80b8c',
+                lineColor='#d80b8c',
+                dataLabels = list(enabled = TRUE, format='{point.y}%')) %>%
+      hc_legend(align = "left", verticalAlign = "top", itemStyle = list(fontFamily ='Calibri',
+                                                                    color ='black', fontSize = "14px")) %>%
+      hc_title(text = paste0(x, " - New Patient Volume vs. Access"), align = "left", 
+           style = list(fontWeight = 'bold', fontSize = "22px", fontFamily = "Calibri")) %>%
+      hc_subtitle(text = specialty,
+                  align = "left", style = list(fontFace = "italic", fontSize = "18px", fontFamily = "Calibri")) %>%
+      hc_tooltip(shared = TRUE, borderColor = "black")
+    }) %>%
+    hw_grid(ncol = 3, rowheight = 400) %>% htmltools::browsable()
+  
+  }
+
+```
+
+
+```{r Productivity Trending, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Physician Productivity
+productivity_trending_graph <- function(specialty){
+  # specialty <- "Otolaryngology"
+  
+  prod_tbl <- metrics_overview_site %>%
+    filter(Specialty == specialty) %>%
+    mutate(new_perc = new_perc*100,
+           p50 = p50*100,
+           p75 = p75*100)
+  
+  map(unique(prod_tbl$Campus), function(x){
+    highchart() %>%
+      hc_yAxis_multiples(
+        list(title = list(text = "% of New Patients"), lineWidth = 3,
+             labels = list(format = '{value}%')),
+        list(title = list(text = "% of Providers"), lineWidth = 3,
+             labels = list(format = '{value}%'), showLastLabel = FALSE, opposite = TRUE)
+        ) %>%
+      hc_xAxis(title = list(text = ""),
+               categories = as.character(prod_tbl$Appt.YearQtr)
+               # type = "datetime",
+               # labels = list(format = '{value:%m/%}')
+               # dateTimeLabelFormats = list(month = '%Y-%m') 
+               ) %>%
+      hc_add_series(name = "% of New Patients Scheduled <=14 Days",
+                data = (prod_tbl %>% filter(Campus == x))$new_perc,
+                type = "column",
+                color='#212070',
+                # linColor='#a5a7a5',
+                dataLabels = list(enabled = TRUE, format='{point.y}%')) %>%
+      hc_add_series(name = "% Providers Above P50 (Not Annualized)",
+                data = (prod_tbl %>% filter(Campus == x))$p50,
+                type = 'line', yAxis = 1,
+                 color='#d80b8c',
+                lineColor='#d80b8c',
+                dataLabels = list(enabled = TRUE, format='{point.y}%')) %>%
+      hc_add_series(name = "% Providers Above P75 (Not Annualized)",
+                data = (prod_tbl %>% filter(Campus == x))$p75,
+                type = 'line',  yAxis = 1,
+                color='#00aeef',
+                linColor='#00aeef',
+                dataLabels = list(enabled = TRUE, format='{point.y}%')) %>%
+       
+      hc_legend(align = "left", verticalAlign = "top", itemStyle = list(fontFamily ='Calibri',
+                                                                    color ='black', fontSize = "14px")) %>%
+      hc_title(text = paste0(x, " - Access vs. Productivity"), align = "left", 
+           style = list(fontWeight = 'bold', fontSize = "22px", fontFamily = "Calibri")) %>%
+      hc_subtitle(text = specialty,
+                  align = "left", style = list(fontFace = "italic", fontSize = "18px", fontFamily = "Calibri")) %>%
+      hc_tooltip(shared = TRUE, borderColor = "black")
+    }) %>%
+    hw_grid(ncol = 3, rowheight = 400) %>% htmltools::browsable()
+  
+}
+
+```
+
+
+```{r Sinai Logo, echo=FALSE, out.width = '15%'}
+knitr::include_graphics("Mount_Sinai_Logo_H.png")
+```
+
+
+# Ambulatory Quarterly Finance and Operational Performance {.tabset .tabset-fade .tabset-pills}
+<span style='font-size: 26px;'>**Executive Summary of `r reporting_YearQtr`**</span><br/>
+___________________________________________________________________________________________________________________________________________________________
+
+## Key Specialties
+<br/>
+<span style='font-size: 20px;'>`r reporting_YearQtr` Metrics by Specialty and Site</span><br/>
+
+:::: {.blackbox data-latex=""}
+::: {.center data-latex=""}
+<span style='font-size: 16px;; color: #d80b8c'>**This tab shows an overview of metric performance by specialty and site:**</span><br/>
+<span style='font-size: 14px; font-style: italic;'>*Includes `r sort(key_specialties)`</span><br/>
+<br/>
+<span style='font-size: 14px; font-weight: bold;'>1. MSHS* roll-up excludes MSDD and Network </span><br/>
+<span style='font-size: 14px; font-weight: bold;'>2. Status* indicates quarterly performance improvement compared to previous quarter (`r data_quarters[length(data_quarters)-1]`)</span><br/>
+<span style='font-size: 14px; font-weight: bold; color: #33cc33'>&nbsp;&nbsp;-- Green</span> indicates metric performed better compared to previous quarter</span><br/>
+<span style='font-size: 14px; font-weight: bold; color: #ff0000'>&nbsp;&nbsp;-- Red </span> indicates metric performed worse compared to previous quarter</span><br/>
+<span style='font-size: 14px; font-weight: bold; color: #ffcc00'>&nbsp;&nbsp;-- Yellow </span> indicates metric had no change compared to previous quarter</span><br/>
+<span style='font-size: 14px; font-weight: bold;'>3. Click on the righ arrow on each row to view quarterly trends of:</span><br/>
+<span style='font-size: 14px;'>&nbsp;&nbsp;-- Median wait time (days) to new appointment vs % of new patients scheduled <=14 days </span><br/>
+<span style='font-size: 14px;'>&nbsp;&nbsp;-- Total number of new patients scheduled vs % of new patients scheduled <=14 days </span><br/>
+<span style='font-size: 14px;'>&nbsp;&nbsp;-- % of new patients scheduled <=14 days vs. % of Providers Above P50 and P75</span><br/>
+
+<!-- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -->
+:::
+::::
+<br/>
+```{r Metrics Overview by Site Table Output, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Median Time to New Appointment
+  waitTime_mshs_tbl <- waitTime_mshs_overview  %>%
+    filter(Appt.Made.YearQtr %in% c(data_quarters[length(data_quarters)],
+                                 data_quarters[length(data_quarters)-1])) %>%
+  pivot_wider(names_from = Appt.Made.YearQtr,
+              values_from = med_wait) %>%
+  mutate(med_wait_change = ifelse(`2022 Q2` < `2022 Q1`, "I",
+                                  ifelse(`2022 Q2` > `2022 Q1`, "W", "N"))) %>%
+  rename(med_wait = `2022 Q2`) %>%
+  ungroup() %>%
+  dplyr::select(-c(New.PT2, `2022 Q1`))
+
+  waitTime_site_tbl <- waitTime_site_overview %>%
+    filter(Appt.Made.YearQtr %in% c(data_quarters[length(data_quarters)], 
+                                 data_quarters[length(data_quarters)-1])) %>%
+    pivot_wider(names_from = Appt.Made.YearQtr,
+                values_from = med_wait) %>%
+    mutate(med_wait_change = ifelse(`2022 Q2` < `2022 Q1`, "I",
+                                  ifelse(`2022 Q2` > `2022 Q1`, "W", "N"))) %>%
+    rename(med_wait = `2022 Q2`) %>%
+    ungroup() %>%
+    dplyr::select(-c(New.PT2, `2022 Q1`))
+      
+  waitTime_tbl <- bind_rows(waitTime_mshs_tbl, waitTime_site_tbl)
+
+  
+  
+  # New Patients Scheduled <=14 days 
+  newPTs_mshs_tbl <- newPTs_mshs_overview %>%
+    dplyr::select(-total_new) %>%
+    filter(Appt.Made.YearQtr %in% c(data_quarters[length(data_quarters)],
+                                 data_quarters[length(data_quarters)-1])) %>%
+    pivot_wider(names_from = Appt.Made.YearQtr,
+                values_from = new_perc) %>%
+    mutate(new_perc_change = ifelse(`2022 Q2` > `2022 Q1`, "I",
+                                  ifelse(`2022 Q2` < `2022 Q1`, "W", "N"))) %>%
+    rename(new_perc = `2022 Q2`) %>%
+    dplyr::select(-c(`2022 Q1`))
+  
+  newPTs_site_tbl <- newPTs_site_overview %>%
+    dplyr::select(-total_new) %>%
+   filter(Appt.Made.YearQtr %in% c(data_quarters[length(data_quarters)],
+                                 data_quarters[length(data_quarters)-1])) %>%
+    pivot_wider(names_from = Appt.Made.YearQtr,
+                values_from = new_perc) %>%
+    mutate(new_perc_change = ifelse(`2022 Q2` > `2022 Q1`, "I",
+                                  ifelse(`2022 Q2` < `2022 Q1`, "W", "N"))) %>%
+    rename(new_perc = `2022 Q2`) %>%
+    dplyr::select(-c(`2022 Q1`))
+  
+  newPTs_tbl <- bind_rows(newPTs_mshs_tbl, newPTs_site_tbl)
+  
+  
+  # Quarterly Volume Change
+  vol_var_tbl <- vol_var_overview %>%
+    filter(Appt.YearQtr %in% c(data_quarters[length(data_quarters)],
+                                 data_quarters[length(data_quarters)-1], data_quarters[length(data_quarters)-4])) %>%
+    pivot_wider(names_from = Appt.YearQtr,
+                  values_from = total,
+                values_fill = 0)
+  
+   vol_var_tbl$var_last_qrt <- round((vol_var_tbl[[5]]/vol_var_tbl[[4]])-1,2)
+   vol_var_tbl$ var_last_yr <- round((vol_var_tbl[[5]]/vol_var_tbl[[3]])-1,2)
+
+   vol_var_tbl <- vol_var_tbl %>%
+     dplyr::select(Specialty, Campus, var_last_qrt, var_last_yr)
+   
+   
+     # Referrals Conversion Rate
+   conversion_rate_tbl <- conversion_rate_overview %>%
+     filter(Appt.YearQtr == reporting_YearQtr) %>%
+     ungroup() %>%
+     dplyr::select(Specialty, Campus, `Conversion Rate`) 
+   
+    
+    # % Physicians <p50
+    # p50_tbl <- p50_overview %>%
+    #   filter(Appt.YearQtr == reporting_YearQtr) %>%
+    #   dplyr::select(Specialty, Campus, p50) 
+    
+    p50_tbl <- p50_overview %>%
+      filter(Appt.YearQtr %in% c(data_quarters[length(data_quarters)],
+                                 data_quarters[length(data_quarters)-1])) %>%
+      pivot_wider(names_from = Appt.YearQtr,
+                  values_from = p50) %>%
+      mutate(p50_change = ifelse(`2022 Q2` > `2022 Q1`, "I",
+                                      ifelse(`2022 Q2` < `2022 Q1`, "W", "N"))) %>%
+      rename(p50 = `2022 Q2`) %>%
+      ungroup() %>%
+      dplyr::select(-c(`2022 Q1`))
+    
+    
+    # % Physicians <p50
+    # p75_tbl <- p75_overview %>%
+    #   filter(Appt.YearQtr == reporting_YearQtr) %>%
+    #   dplyr::select(Specialty, Campus, p75) 
+    
+    p75_tbl <- p75_overview %>%
+      filter(Appt.YearQtr %in% c(data_quarters[length(data_quarters)],
+                                 data_quarters[length(data_quarters)-1])) %>%
+      pivot_wider(names_from = Appt.YearQtr,
+                  values_from = p75) %>%
+      mutate(p75_change = ifelse(`2022 Q2` > `2022 Q1`, "I",
+                                      ifelse(`2022 Q2` < `2022 Q1`, "W", "N"))) %>%
+      rename(p75 = `2022 Q2`) %>%
+      ungroup() %>%
+      dplyr::select(-c(`2022 Q1`))
+
+    
+    # Merge all metrics
+    metrics_site_tbl_list <- list(waitTime_tbl, newPTs_tbl, vol_var_tbl,
+                                   conversion_rate_tbl, p50_tbl, p75_tbl)
+    
+    metrics_site_tbl <- metrics_site_tbl_list %>%
+      reduce(left_join, by = c("Specialty", "Campus"))
+    
+    
+    nms <- c("Specialty", "Campus", "med_wait", "med_wait_change", "new_perc", "new_perc_change",
+             "var_last_qrt", "var_last_yr", "Conversion Rate", "p50", "p75", "Space_Turn", "Space_Duration")
+    Missing <- setdiff(nms, names(metrics_site_tbl))  # Find names of missing columns
+    metrics_site_tbl[Missing] <- NA                    # Add them, filled with '0's
+    
+    metrics_site_tbl <- metrics_site_tbl %>%
+      filter(Specialty == specialty) %>%
+      filter(Specialty %!in% c("Needs Review","Exclude","Needs Review - Data Integrity")) %>%
+      dplyr::select(Specialty, Campus, med_wait, med_wait_change, new_perc, new_perc_change,
+             var_last_qrt, var_last_yr, `Conversion Rate`, p50, p50_change, p75, p75_change, Space_Turn, Space_Duration) %>%
+      arrange(Specialty) %>%
+      mutate(Campus = factor(Campus, levels = c("MSHS*", "MSBI", "MSDD", "MSH- AMBULATORY CARE",
+                                                "MSH-MSDFP", "MSM", "MSUS", "MSW", "NETWORK", "ONCOLOGY"))) 
+    
+    # metrics_overview_site[is.na(metrics_overview_site)] <- 0.000001
+
+    
+    # Traffic Lights for Comparison to Last Quarter Access Metrics
+  library(htmltools)
+  status_badge <- function(color = "white", width = "1.5rem", height = width) {
+    span(style = list(
+      display = "inline-block",
+      marginRight = "0.5rem",
+      width = width,
+      height = height,
+      backgroundColor = color,
+      borderRadius = "50%"
+    ))
+  }
+  
+
+  # new_perc_column <- function(maxWidth = NULL, class = NULL, header_color = NULL, ...) {
+  #   colDef(
+  #     cell = format_pct,
+  #     maxWidth = maxWidth,
+  #     headerStyle = list(background = header_color, color = "white", fontWeight = "Bold", fontSize = "14px"),
+  #     class = paste("cell number", class),
+  #     style = function(value) {
+  #       # Lighter color for <1%
+  #       if (is.na(value)) {
+  #         list(color = "#aaa")
+  #         } else if (value >= 1) {
+  #           list(color = "#111", fontWeight = "Bold", background = new_pct_color(1))
+  #         } else {
+  #           list(color = "#111", fontWeight = "Bold", background = new_pct_color(value))
+  #           }
+  #       },
+  #     ...
+  #   )
+  #   }
+  # 
+  # format_pct <- function(value) {
+  #   if (is.na(value)) "  \u2013 "    # en dash for 0%
+  #   # else if (value == 1) "\u2713"  # checkmark for 100%
+  #   else formatC(paste0(round(value * 100), "%"), width = 4)
+  #   }
+  # 
+  # make_color_pal <- function(colors, bias = 1) {
+  #   get_color <- colorRamp(colors, bias = bias)
+  #   function(x) rgb(get_color(x), maxColorValue = 255)
+  #   }
+  # 
+  # new_pct_color <- make_color_pal(c("#fc8d59", "#ffffbf","#5cd65c"), bias = 2)
+  # 
+  # Table Output 
+  reactable(
+    metrics_site_tbl,
+    # groupBy = c("Campus","Campus.Specialty"),
+    # defaultPageSize = 5,
+    # elementId = "site-grouping-table",
+    style = list(fontFamily = 'Calibri',
+                 fontSize = '13px'),
+    defaultColDef = colDef(align = "center", 
+                           headerStyle = list(fontWeight = "Bold", fontSize = "13px"),
+                           headerClass = "bar-sort-header"),   
+    highlight = TRUE,
+    # filterable = TRUE,
+    pagination = FALSE,
+    # height = 800,
+    wrap = TRUE,
+    # bordered = TRUE,
+     # rowStyle = function(index) {
+     #        if (index %in% as.vector(col_border_num$total)) {
+     #          list(`border-bottom` = "thin solid")
+     #        }
+     #      },
+    columnGroups = list(
+    colGroup(name = "", columns = c("Campus", "Specialty"),
+             headerStyle = list(color = "black", fontSize = "15px"),
+             sticky = "left"),
+    colGroup(name = "Access", columns = c("med_wait", "med_wait_change", "new_perc", "new_perc_change"),
+             headerStyle = list(background = "#221f72", color = "white", fontSize = "15px")),
+    colGroup(name = "Volume", columns = c("var_last_qrt", "var_last_yr"),
+              headerStyle = list(background = "#d80b8c", color = "white", fontSize = "15px")), 
+    colGroup(name = "Referrals", columns = c("Conversion Rate"),
+             headerStyle = list(background = "#d80b8c", color = "white", fontSize = "15px")),
+    colGroup(name = "Productivity", columns = c("p50","p50_change","p75","p75_change"),
+             headerStyle = list(background = "#d80b8c", color = "white", fontSize = "15px")),
+    colGroup(name = "Space Utilization", columns = c("Space_Turn", "Space_Duration"),
+             headerStyle = list(background = "#d80b8c", color = "white", fontSize = "15px"))
+             
+    ),
+    columns = list(
+      Specialty = colDef(
+        minWidth = 230,
+        headerStyle = list(fontWeight = "Bold", fontSize = "15px"),
+        align = "left",
+        footer = "*Excludes MSDD and NETWORK"
+        ),
+    Campus = colDef(
+      name = "Site",
+      headerStyle = list(fontWeight = "Bold", fontSize = "15px"),
+      minWidth = 160,
+      align = "left"
+    ),
+    med_wait = colDef(
+      name = "New Wait Time",
+      minWidth = 100,
+      headerStyle = list(background = "#221f72", color = "white"),
+      cell = function(value) {
+        if (is.na(value)) "  \u2013 "
+        else paste0(round(value), " days")
+        },
+      style = list(borderLeft = "1.5px solid rgb(184,184,184)")
+      # cell = data_bars(
+      #   data = metrics_overview_site,
+      #   fill_color = '#EEEEEE',
+      #   number_fmt = scales::label_number(accuracy = 1, suffix = " days"),
+      #   text_position = 'outside-base',
+      #   max_value = max(metrics_overview_site$med_wait),
+      #   icon = 'circle',
+      #   icon_color = '#226ab2',
+      #   icon_size = 7,
+      #   text_color = 'black',
+      #   round_edges = TRUE
+      # )
+    ),
+    med_wait_change = colDef(
+      style = list(color = "white"),
+      cell = function(value) {
+      color <- switch(
+        value,
+        I = "hsl(120, 60%, 50%)",
+        N = "hsl(48, 100%, 50%)",
+        W = "hsl(0, 100%, 50%)"
+      )
+      badge <- status_badge(color = color)
+      tagList(badge, if (is.na(value)) "  \u2013 " else value)
+    },
+    name = "Status*",
+    minWidth = 60, 
+    headerStyle = list(background = "#221f72", color = "white"),
+    align = "left"),
+    new_perc = 
+      # new_perc_column(name = "% New Patients Scheduled <=14 Days", header_color = "#221f72"),
+      colDef(
+      name = "% New Patients Scheduled <=14 Days",
+      minWidth = 100,
+      headerStyle = list(background = "#221f72", color = "white"),
+      cell = function(value) {
+        if (is.na(value)) "  \u2013 "
+        else formatC(paste0(round(value * 100), "%"), width = 4)
+        }
+  
+      # cell = data_bars(
+      #   data = metrics_overview_site,
+      #   fill_color = '#EEEEEE',
+      #   number_fmt = scales::percent,
+      #   text_position = 'outside-base',
+      #   max_value = max(metrics_overview_site$new_perc),
+      #   icon = 'circle',
+      #   icon_color = '#226ab2',
+      #   icon_size = 7,
+      #   text_color = 'black',
+      #   round_edges = TRUE
+      # )
+    ),
+    new_perc_change =  colDef(
+      style = list(color = "white"),
+      cell = function(value) {
+      color <- switch(
+        value,
+        I = "hsl(120, 60%, 50%)",
+        N = "hsl(48, 100%, 50%)",
+        W = "hsl(0, 100%, 50%)"
+      )
+      badge <- status_badge(color = color)
+      tagList(badge, if (is.na(value)) "  \u2013 " else value)
+    },
+    name = "Status*",
+    minWidth = 60, 
+    headerStyle = list(background = "#221f72", color = "white"),
+    align = "left"),
+    `var_last_qrt` = colDef(
+      name = "% Change from Last Quarter",
+      minWidth = 100,
+      headerStyle = list(background = "#d80b8c", color = "white"),
+      cell = function(value) {
+        if (is.na(value)) "  \u2013 "
+        else if(value > 0) formatC(paste0("+", round(value * 100), "%"), width = 4)
+        else formatC(paste0(round(value * 100), "%"), width = 4)
+      },
+      style = function(value) {
+        color <- if (is.na(value)) {"#aaa"}
+        else if (value > 0) {
+          "#008000"
+        } else "#e00000"
+        list(fontWeight = 600, color = color, borderLeft = "1.5px solid rgb(184,184,184)")
+      }
+      ),
+    `var_last_yr` = colDef(
+      name = "% Change from Same Quarter Last Year",
+      minWidth = 100,
+      headerStyle = list(background = "#d80b8c", color = "white"),
+      cell = function(value) {
+        if (is.na(value)) "  \u2013 "
+        else if(value > 0) formatC(paste0("+", round(value * 100), "%"), width = 4)
+        else formatC(paste0(round(value * 100), "%"), width = 4)
+      },
+      style = function(value) {
+        color <- if (is.na(value)) {"#aaa"}
+        else if (value > 0) {
+          "#008000"
+        } else "#e00000"
+        list(fontWeight = 600, color = color)
+      }
+      ),
+    `Conversion Rate` = colDef(
+      minWidth = 100,
+      headerStyle = list(background = "#d80b8c", color = "white"),
+      format = colFormat(percent = TRUE, digits = 0),
+      cell = function(value) {
+        if (is.na(value)) "  \u2013 "
+        else formatC(paste0(round(value * 100), "%"), width = 4)
+      },
+      style = list(borderLeft = "1.5px solid rgb(184,184,184)")
+      ),
+     p50 = colDef(
+      name = paste0("% Providers Above P50 (",min_month,"-",max_month," Annualized"),
+      minWidth = 100,
+      headerStyle = list(background = "#d80b8c", color = "white"),
+      format = colFormat(percent = TRUE, digits = 0),
+      cell = function(value) {
+        if (is.na(value)) "  \u2013 "
+        else formatC(paste0(round(value * 100), "%"), width = 4)
+      }
+      # style = function(value) {
+      #   color <- if (is.na(value)) {"#aaa"}
+      #   else if (value >= .80) {
+      #     "#008000"
+      #   } else "#e00000"
+      #   list(fontWeight = 600, color = color)
+      # }
+      ),
+    p50_change =  colDef(
+      style = list(color = "white"),
+      cell = function(value) {
+      color <- switch(
+        value,
+        I = "hsl(120, 60%, 50%)",
+        N = "hsl(48, 100%, 50%)",
+        W = "hsl(0, 100%, 50%)"
+      )
+      badge <- status_badge(color = color)
+      tagList(badge, if (is.na(value)) "  \u2013 " else value)
+    },
+    name = "Status*",
+    minWidth = 60, 
+    headerStyle = list(background = "#d80b8c", color = "white"),
+    align = "left"),
+    p75 = colDef(
+      name = paste0("% Providers Above P75 (",min_month,"-",max_month," Annualized"),
+      minWidth = 100,
+      headerStyle = list(background = "#d80b8c", color = "white"),
+      format = colFormat(percent = TRUE, digits = 0),
+      cell = function(value) {
+        if (is.na(value)) "  \u2013 "
+        else formatC(paste0(round(value * 100), "%"), width = 4)
+      }
+      # style = function(value) {
+      #   color <- if (is.na(value)) {"#aaa"}
+      #   else if (value >= .80) {
+      #     "#008000"
+      #   } else "#e00000"
+      #   list(fontWeight = 600, color = color)
+      # }
+      ),
+    p75_change =  colDef(
+      style = list(color = "white"),
+      cell = function(value) {
+      color <- switch(
+        value,
+        I = "hsl(120, 60%, 50%)",
+        N = "hsl(48, 100%, 50%)",
+        W = "hsl(0, 100%, 50%)"
+      )
+      badge <- status_badge(color = color)
+      tagList(badge, if (is.na(value)) "  \u2013 " else value)
+    },
+    name = "Status*",
+    minWidth = 60, 
+    headerStyle = list(background = "#d80b8c", color = "white"),
+    align = "left"),
+     Space_Turn = colDef(
+      name = "% Utilization (By Turns)",
+      minWidth = 100,
+      headerStyle = list(background = "#d80b8c", color = "white"),
+      format = colFormat(percent = TRUE, digits = 0),
+      cell = function(value) {
+        if (is.na(value)) "  \u2013 "
+        else formatC(paste0(round(value * 100), "%"), width = 4)
+      },
+      style = list(borderLeft = "1.5px solid rgb(184,184,184)")
+      ),
+    Space_Duration = colDef(
+      name = "% Utilization (By Duration)",
+      minWidth = 100,
+      headerStyle = list(background = "#d80b8c", color = "white"),
+      format = colFormat(percent = TRUE, digits = 0),
+      cell = function(value) {
+        if (is.na(value)) "  \u2013 "
+        else formatC(paste0(round(value * 100), "%"), width = 4)
+      }
+      )
+    ),
+    details = function(index) {
+    htmltools::div(
+      h2("Trends"),
+      specialty_site_graph(index),
+      h2(" ")    )
+    } # Close details
+  
+  )
+```
+
+
+## Access Trend
+<!-- <span style='font-size: 20px;'>`r specialty` `r reporting_YearQtr` Access Trend </span><br/> -->
+### Access Trend - `r specialty`
+```{r Access Metric Trending Overview, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Median Wait Time vs. % Patients Scheduled <=14 Days
+# access_trending_graph <- function(specialty){
+  # specialty <- "Otolaryngology"
+  
+  access_tbl <- metrics_overview_site %>%
+    filter(Specialty == specialty) %>%
+    mutate(new_perc = new_perc*100)
+  
+  map(unique(access_tbl$Campus), function(x){
+    highchart() %>%
+      hc_yAxis_multiples(
+        list(title = list(text = "% of New Patients"), lineWidth = 3,
+             labels = list(format = '{value}%')),
+        list(title = list(text = "Median Days"), showLastLabel = FALSE, opposite = TRUE)
+        ) %>%
+      hc_xAxis(title = list(text = ""),
+               categories = as.character(access_tbl$Appt.YearQtr)
+               # type = "datetime",
+               # labels = list(format = '{value:%m/%}')
+               # dateTimeLabelFormats = list(month = '%Y-%m') 
+               ) %>%
+      hc_add_series(name = "% of New Patients Scheduled <=14 Days",
+                data = (access_tbl %>% filter(Campus == x))$new_perc,
+                type = 'column',
+                color='#212070',
+                dataLabels = list(enabled = TRUE, format='{point.y}%')) %>%
+      hc_add_series(name = "New Patient Wait Time",
+                data = (access_tbl %>% filter(Campus == x))$med_wait,
+                type = "line", yAxis = 1,
+                color='#d80b8c',
+                lineColor='#d80b8c',
+                dataLabels = list(enabled = TRUE, format='{point.y} Days')) %>%
+      hc_legend(align = "left", verticalAlign = "top", itemStyle = list(fontFamily ='Calibri',
+                                                                    color ='black', fontSize = "14px")) %>%
+      hc_title(text = paste0(x, " - New Patient Access"), align = "left", 
+           style = list(fontWeight = 'bold', fontSize = "22px", fontFamily = "Calibri")) %>%
+      hc_subtitle(text = specialty,
+                  align = "left", style = list(fontFace = "italic", fontSize = "18px", fontFamily = "Calibri")) %>%
+      hc_tooltip(shared = TRUE, borderColor = "black")
+    }) %>%
+    hw_grid(ncol = 3, rowheight = 400) 
+  
+  # }
+
+```
+
+
+## New Patient Trend
+<!-- <span style='font-size: 20px;'>`r specialty` `r reporting_YearQtr` New Patient Trend </span><br/> -->
+### New Patient Trend - `r specialty`
+```{r New Volume Trending Overview, echo = FALSE, warning = FALSE, message = FALSE}
+
+# New Patient Volume vs. % Patients Scheduled <=14 DAys
+# new_trending_graph <- function(specialty){
+  # specialty <- "Otolaryngology"
+  
+  new_tbl <- metrics_overview_site %>%
+    filter(Specialty == specialty) %>%
+    mutate(new_perc = new_perc*100)
+  
+  map(unique(new_tbl$Campus), function(x){
+    highchart() %>%
+      hc_yAxis_multiples(
+        list(title = list(text = "Total New Patients"), lineWidth = 3),
+        list(title = list(text = "% of New Patients"), 
+             labels = list(format = '{value}%'), showLastLabel = FALSE, opposite = TRUE)
+        ) %>%
+      hc_xAxis(title = list(text = ""),
+               categories = as.character(new_tbl$Appt.YearQtr)
+               # type = "datetime",
+               # labels = list(format = '{value:%m/%}')
+               # dateTimeLabelFormats = list(month = '%Y-%m') 
+               ) %>%
+      hc_add_series(name = "Total New Patients",
+                data = (new_tbl %>% filter(Campus == x))$total_new,
+                type = 'column',
+                color='#a5a7a5',
+                dataLabels = list(enabled = TRUE, format='{point.y}')) %>%
+       hc_add_series(name = "% of New Patients Scheduled <=14 Days",
+                data = (new_tbl %>% filter(Campus == x))$new_perc,
+                type = "line", yAxis = 1,
+                color='#d80b8c',
+                lineColor='#d80b8c',
+                dataLabels = list(enabled = TRUE, format='{point.y}%')) %>%
+      hc_legend(align = "left", verticalAlign = "top", itemStyle = list(fontFamily ='Calibri',
+                                                                    color ='black', fontSize = "14px")) %>%
+      hc_title(text = paste0(x, " - New Patient Volume vs. Access"), align = "left", 
+           style = list(fontWeight = 'bold', fontSize = "22px", fontFamily = "Calibri")) %>%
+      hc_subtitle(text = specialty,
+                  align = "left", style = list(fontFace = "italic", fontSize = "18px", fontFamily = "Calibri")) %>%
+      hc_tooltip(shared = TRUE, borderColor = "black")
+    }) %>%
+    hw_grid(ncol = 3, rowheight = 400) %>% htmltools::browsable()
+  
+  # }
+
+```
+
+
+## Productivity Trend
+<!-- <span style='font-size: 20px;'>`r specialty` `r reporting_YearQtr` Productivity Trend </span><br/> -->
+### Productivity Trend - `r specialty`
+```{r Productivity Trending Overview, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Physician Productivity
+# productivity_trending_graph <- function(specialty){
+  # specialty <- "Otolaryngology"
+
+  prod_tbl <- metrics_overview_site %>%
+    filter(Specialty == specialty) %>%
+    mutate(new_perc = new_perc*100,
+           p50 = p50*100,
+           p75 = p75*100)
+  
+  map(unique(prod_tbl$Campus), function(x){
+    highchart() %>%
+      hc_yAxis_multiples(
+        list(title = list(text = "% of New Patients"), lineWidth = 3,
+             labels = list(format = '{value}%')),
+        list(title = list(text = "% of Providers"), lineWidth = 3,
+             labels = list(format = '{value}%'), showLastLabel = FALSE, opposite = TRUE)
+        ) %>%
+      hc_xAxis(title = list(text = ""),
+               categories = as.character(prod_tbl$Appt.YearQtr)
+               # type = "datetime",
+               # labels = list(format = '{value:%m/%}')
+               # dateTimeLabelFormats = list(month = '%Y-%m') 
+               ) %>%
+      hc_add_series(name = "% of New Patients Scheduled <=14 Days",
+                data = (prod_tbl %>% filter(Campus == x))$new_perc,
+                type = "column",
+                color='#212070',
+                # linColor='#a5a7a5',
+                dataLabels = list(enabled = TRUE, format='{point.y}%')) %>%
+      hc_add_series(name = "% Providers Above P50 (Not Annualized)",
+                data = (prod_tbl %>% filter(Campus == x))$p50,
+                type = 'line', yAxis = 1,
+                 color='#d80b8c',
+                lineColor='#d80b8c',
+                dataLabels = list(enabled = TRUE, format='{point.y}%')) %>%
+      hc_add_series(name = "% Providers Above P75 (Not Annualized)",
+                data = (prod_tbl %>% filter(Campus == x))$p75,
+                type = 'line',  yAxis = 1,
+                color='#00aeef',
+                linColor='#00aeef',
+                dataLabels = list(enabled = TRUE, format='{point.y}%')) %>%
+       
+      hc_legend(align = "left", verticalAlign = "top", itemStyle = list(fontFamily ='Calibri',
+                                                                    color ='black', fontSize = "14px")) %>%
+      hc_title(text = paste0(x, " - Access vs. Productivity"), align = "left", 
+           style = list(fontWeight = 'bold', fontSize = "22px", fontFamily = "Calibri")) %>%
+      hc_subtitle(text = specialty,
+                  align = "left", style = list(fontFace = "italic", fontSize = "18px", fontFamily = "Calibri")) %>%
+      hc_tooltip(shared = TRUE, borderColor = "black")
+    }) %>%
+    hw_grid(ncol = 3, rowheight = 400) %>% htmltools::browsable()
+
+```
+
+
+<!-- ## Anesthesiology/Pain Management -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Anesthesiology/Pain Management, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function(i))) -->
+<!-- access_trending_graph(i) -->
+<!-- new_trending_graph(i) -->
+<!-- productivity_trending_graph(i) -->
+
+<!-- ``` -->
+
+
+<!-- ## Anesthesiology/Pain Management -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Anesthesiology/Pain Management, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Anesthesiology/Pain Management"))) -->
+<!-- access_trending_graph("Anesthesiology/Pain Management") -->
+<!-- new_trending_graph("Anesthesiology/Pain Management") -->
+<!-- productivity_trending_graph("Anesthesiology/Pain Management") -->
+
+<!-- ``` -->
+
+
+<!-- ## Cardiovascular Institute/Cardiology -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Cardiovascular Institute/Cardiology, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Cardiovascular Institute/Cardiology"))) -->
+<!-- access_trending_graph("Cardiovascular Institute/Cardiology") -->
+<!-- new_trending_graph("Cardiovascular Institute/Cardiology") -->
+<!-- productivity_trending_graph("Cardiovascular Institute/Cardiology") -->
+
+<!-- ``` -->
+
+
+<!-- ## Dermatology -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Dermatology, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Dermatology"))) -->
+<!-- access_trending_graph("Dermatology") -->
+<!-- new_trending_graph("Dermatology") -->
+<!-- productivity_trending_graph("Dermatology") -->
+
+<!-- ``` -->
+
+
+<!-- ## Geriatrics -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Geriatrics, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Geriatrics"))) -->
+<!-- access_trending_graph("Geriatrics") -->
+<!-- new_trending_graph("Geriatrics") -->
+<!-- productivity_trending_graph("Geriatrics") -->
+
+<!-- ``` -->
+
+
+<!-- ## Medicine - Clinical Immunology -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Medicine - Clinical Immunology, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Medicine - Clinical Immunology"))) -->
+<!-- access_trending_graph("Medicine - Clinical Immunology") -->
+<!-- new_trending_graph("Medicine - Clinical Immunology") -->
+<!-- productivity_trending_graph("Medicine - Clinical Immunology") -->
+
+<!-- ``` -->
+
+
+<!-- ## Medicine - Endocrinology -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Medicine - Endocrinology, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Medicine - Endocrinology"))) -->
+<!-- access_trending_graph("Medicine - Endocrinology") -->
+<!-- new_trending_graph("Medicine - Endocrinology") -->
+<!-- productivity_trending_graph("Medicine - Endocrinology") -->
+
+<!-- ``` -->
+
+
+<!-- ## Medicine - Gastroenterology -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Medicine - Gastroenterology, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Medicine - Gastroenterology"))) -->
+<!-- access_trending_graph("Medicine - Gastroenterology") -->
+<!-- new_trending_graph("Medicine - Gastroenterology") -->
+<!-- productivity_trending_graph("Medicine - Gastroenterology") -->
+
+<!-- ``` -->
+
+
+<!-- ## Medicine - Infectious Diseases/Travel Medicine -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Medicine - Infectious Diseases/Travel Medicine, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Medicine - Infectious Diseases/Travel Medicine"))) -->
+<!-- access_trending_graph("Medicine - Infectious Diseases/Travel Medicine") -->
+<!-- new_trending_graph("Medicine - Infectious Diseases/Travel Medicine") -->
+<!-- productivity_trending_graph("Medicine - Infectious Diseases/Travel Medicine") -->
+
+<!-- ``` -->
+
+
+<!-- ## Medicine - Liver -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Medicine - Liver, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Medicine - Liver"))) -->
+<!-- access_trending_graph("Medicine - Liver") -->
+<!-- new_trending_graph("Medicine - Liver") -->
+<!-- productivity_trending_graph("Medicine - Liver") -->
+
+<!-- ``` -->
+
+
+<!-- ## Medicine - Primary Care -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Medicine - Primary Care, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Medicine - Primary Care"))) -->
+<!-- access_trending_graph("Medicine - Primary Care") -->
+<!-- new_trending_graph("Medicine - Primary Care") -->
+<!-- productivity_trending_graph("Medicine - Primary Care") -->
+
+<!-- ``` -->
+
+
+<!-- ## Medicine - Pulmonary/Sleep -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Medicine - Pulmonary/Sleep, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Medicine - Pulmonary/Sleep"))) -->
+<!-- access_trending_graph("Medicine - Pulmonary/Sleep") -->
+<!-- new_trending_graph("Medicine - Pulmonary/Sleep") -->
+<!-- productivity_trending_graph("Medicine - Pulmonary/Sleep") -->
+
+<!-- ``` -->
+
+
+<!-- ## Medicine - Renal/Nephrology -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Medicine - Renal/Nephrology, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Medicine - Renal/Nephrology"))) -->
+<!-- access_trending_graph("Medicine - Renal/Nephrology") -->
+<!-- new_trending_graph("Medicine - Renal/Nephrology") -->
+<!-- productivity_trending_graph("Medicine - Renal/Nephrology") -->
+
+<!-- ``` -->
+
+
+<!-- ## Medicine - Rheumatology -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Medicine - Rheumatology, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Medicine - Rheumatology"))) -->
+<!-- access_trending_graph("Medicine - Rheumatology") -->
+<!-- new_trending_graph("Medicine - Rheumatology") -->
+<!-- productivity_trending_graph("Medicine - Rheumatology") -->
+
+<!-- ``` -->
+
+
+<!-- ## Neurology -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Neurology, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Neurology"))) -->
+<!-- access_trending_graph("Neurology") -->
+<!-- new_trending_graph("Neurology") -->
+<!-- productivity_trending_graph("Neurology") -->
+
+<!-- ``` -->
+
+
+<!-- ## Neurosurgery -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Neurosurgery, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Neurosurgery"))) -->
+<!-- access_trending_graph("Neurosurgery") -->
+<!-- new_trending_graph("Neurosurgery") -->
+<!-- productivity_trending_graph("Neurosurgery") -->
+
+<!-- ``` -->
+
+
+<!-- ## OB-GYN -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r OB-GYN, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("OB-GYN"))) -->
+<!-- access_trending_graph("OB-GYN") -->
+<!-- new_trending_graph("OB-GYN") -->
+<!-- productivity_trending_graph("OB-GYN") -->
+
+<!-- ``` -->
+
+
+<!-- ## Ophthalmology -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Ophthalmology, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Ophthalmology"))) -->
+<!-- access_trending_graph("Ophthalmology") -->
+<!-- new_trending_graph("Ophthalmology") -->
+<!-- productivity_trending_graph("Ophthalmology") -->
+
+<!-- ``` -->
+
+
+<!-- ## Orthopedics -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Orthopedics, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Orthopedics"))) -->
+<!-- access_trending_graph("Orthopedics") -->
+<!-- new_trending_graph("Orthopedics") -->
+<!-- productivity_trending_graph("Orthopedics") -->
+
+<!-- ``` -->
+
+
+<!-- ## Otolaryngology -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Otolaryngology, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Otolaryngology"))) -->
+<!-- access_trending_graph("Otolaryngology") -->
+<!-- new_trending_graph("Otolaryngology") -->
+<!-- productivity_trending_graph("Otolaryngology") -->
+
+<!-- ``` -->
+
+
+<!-- ## Pathology -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Pathology, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Pathology"))) -->
+<!-- access_trending_graph("Pathology") -->
+<!-- new_trending_graph("Pathology") -->
+<!-- productivity_trending_graph("Pathology") -->
+
+<!-- ``` -->
+
+
+<!-- ## Pediatrics -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Pediatrics, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Pediatrics"))) -->
+<!-- access_trending_graph("Pediatrics") -->
+<!-- new_trending_graph("Pediatrics") -->
+<!-- productivity_trending_graph("Pediatrics") -->
+
+<!-- ``` -->
+
+
+<!-- ## Psychiatry -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Psychiatry, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Psychiatry"))) -->
+<!-- access_trending_graph("Psychiatry") -->
+<!-- new_trending_graph("Psychiatry") -->
+<!-- productivity_trending_graph("Psychiatry") -->
+
+<!-- ``` -->
+
+
+<!-- ## Radiology -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Radiology, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Radiology"))) -->
+<!-- access_trending_graph("Radiology") -->
+<!-- new_trending_graph("Radiology") -->
+<!-- productivity_trending_graph("Radiology") -->
+
+<!-- ``` -->
+
+
+<!-- ## Rehabilitation and Human Performance -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Rehabilitation and Human Performance, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Rehabilitation and Human Performance"))) -->
+<!-- access_trending_graph("Rehabilitation and Human Performance") -->
+<!-- new_trending_graph("Rehabilitation and Human Performance") -->
+<!-- productivity_trending_graph("Rehabilitation and Human Performance") -->
+
+<!-- ``` -->
+
+
+<!-- ## Surgery -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Surgery, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Surgery"))) -->
+<!-- access_trending_graph("Surgery") -->
+<!-- new_trending_graph("Surgery") -->
+<!-- productivity_trending_graph("Surgery") -->
+
+<!-- ``` -->
+
+
+<!-- ## Thoracic Surgery -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Thoracic Surgery, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Thoracic Surgery"))) -->
+<!-- access_trending_graph("Thoracic Surgery") -->
+<!-- new_trending_graph("Thoracic Surgery") -->
+<!-- productivity_trending_graph("Thoracic Surgery") -->
+
+<!-- ``` -->
+
+
+<!-- ## Tisch Institute/Hematology Oncology -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Tisch Institute/Hematology Oncology, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Tisch Institute/Hematology Oncology"))) -->
+<!-- access_trending_graph("Tisch Institute/Hematology Oncology") -->
+<!-- new_trending_graph("Tisch Institute/Hematology Oncology") -->
+<!-- productivity_trending_graph("Tisch Institute/Hematology Oncology") -->
+
+<!-- ``` -->
+
+
+<!-- ## Transplant Institute -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Transplant Institute, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Transplant Institute"))) -->
+<!-- access_trending_graph("Transplant Institute") -->
+<!-- new_trending_graph("Transplant Institute") -->
+<!-- productivity_trending_graph("Transplant Institute") -->
+
+<!-- ``` -->
+
+
+<!-- ## Urgent Care -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Urgent Care, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Urgent Care"))) -->
+<!-- access_trending_graph("Urgent Care") -->
+<!-- new_trending_graph("Urgent Care") -->
+<!-- productivity_trending_graph("Urgent Care") -->
+
+<!-- ``` -->
+
+
+<!-- ## Urology -->
+<!-- <span style='font-size: 20px;'>`r reporting_YearQtr`</span><br/> -->
+<!-- ```{r Urology, echo = FALSE, warning = FALSE, message = FALSE, results="asis"} -->
+
+<!-- print(shiny::tagList(metrics_specialty_tbl_function("Urology"))) -->
+<!-- access_trending_graph("Urology") -->
+<!-- new_trending_graph("Urology") -->
+<!-- productivity_trending_graph("Urology") -->
+
+<!-- ``` -->
+
+
+## Reference
+### Metric Definitions
+<!-- <span style='font-size: 20px;'>Metric Definitions</span><br/> -->
+```{r Metric Definitions, echo = FALSE, warning = FALSE, message = FALSE, results="asis"}
+
+metrics_def <- data.frame(Metric = c("Net Operating Variance to Budget",
+                                     "Patient Revenue Variance to Budget",
+                                     "Expense Variance to Budget",
+                                     "Physician Productivity",
+                                     "Time to Appointment",
+                                     "Referrals - Conversion Rate",
+                                     "Referrals - Completion Rate",
+                                     "Average Weekday Visits",
+                                     "Variance from Benchmark",
+                                     "% Utilization (By Turns)",
+                                     "% Utilization (By Durations)",
+                                     "Average Utilization by Hour"),
+                          Definition = c("Difference between an actual surplus (or deficit) and a budgeted surplus (or deficit).",
+                                         "Difference between actual patient revenue and budgeted patient revenue",
+                                         "Difference between actual expense and budgeted expense",
+                                         "A measure of the amount of patient care services provided, based on total worked",
+                                         "Number of days between date-of-schedule and date-of-service.",
+                                         "Percent of total number of appointments scheduled over total number of referrals received",
+                                         "Percent of total number of arrived appointments over total number of referrals received.",
+                                         "Total number of arrived visits over total number of business days in a time period.",
+                                         "Difference between Average Weekday Volume and Expected Daily Volume Target based on total room count and visits/room/day benchmark (i.e. 10 rooms available per day and 10 visits/room/day benchmark equals to 100 expected daily volume target; 120 average weekday volume results in 20 Volume Variance to Benchmark).",
+                                         "Average weekday volume over total number of rooms available over visits/room/day benchmark.",
+                                         "Total sum of scheduled visit durations with 20% adjustment factor over total room time available. Total room time available is calculated based on Total Rooms Available per Day x Total Working Hours per Day (10 rooms available per day x 8 working hours per day = 80 hours of room time available per day).",
+                                         "Total sum of scheduled visit durations with 20% adjustment factor over total room time available within the respective hour (2 30-minute visits scheduled at 9:00am and 9:30am with 1 rooms available = 60 minutes of visit duration / 60 room time available = 100% Utilization)."))
+
+
+
+reactable(
+    metrics_def,
+    # groupBy = c("Campus","Campus.Specialty"),
+    # defaultPageSize = 5,
+    # elementId = "site-grouping-table",
+    style = list(fontFamily = 'Calibri',
+                 fontSize = '14px'),
+    defaultColDef = colDef(align = "left", 
+                           headerStyle = list(fontWeight = "Bold", fontSize = "14px"),
+                           headerClass = "bar-sort-header"),   
+    highlight = TRUE,
+    # filterable = TRUE,
+    pagination = FALSE,
+    # height = 800,
+    wrap = TRUE,
+    columns = list(
+      Metric = colDef(
+        maxWidth = 250,
+        headerStyle = list(background = "#221f72", color = "white", fontSize = "14px"),
+        style = list(fontWeight = "Bold"),
+        align = "left"
+        ),
+      Definition = colDef(
+        minWidth = 250,
+        headerStyle = list(background = "#221f72", color = "white", fontSize = "14px"),
+        align = "left"
+    )
+  )
+)
+
+```
+
+
+### Department Mapping
+```{r Department Mapping, echo = FALSE, warning = FALSE, message = FALSE, results="asis"}
+
+dept_mapping <- monthly_vol %>%
+  filter(Specialty == specialty) %>%
+  group_by(Specialty, Campus, Department) %>%
+  summarise(total = n()) %>%
+  dplyr::select(-total) %>%
+  rename(`Epic Department Name` = Department)
+
+
+reactable(
+    dept_mapping,
+    # groupBy = c("Specialty","Campus"),
+    # defaultPageSize = 5,
+    # elementId = "site-grouping-table",
+    style = list(fontFamily = 'Calibri',
+                 fontSize = '14px'),
+    defaultColDef = colDef(align = "left", 
+                           headerStyle = list(fontWeight = "Bold", fontSize = "14px"),
+                           headerClass = "bar-sort-header"),   
+    highlight = TRUE,
+    # filterable = TRUE,
+    pagination = FALSE,
+    # height = 800,
+    wrap = TRUE,
+    columns = list(
+      Specialty = colDef(
+        maxWidth = 250,
+        headerStyle = list(background = "#221f72", color = "white", fontSize = "14px"),
+        style = list(fontWeight = "Bold"),
+        align = "left"
+        ),
+      Campus = colDef(
+        maxWidth = 200,
+        headerStyle = list(background = "#221f72", color = "white", fontSize = "14px"),
+        style = list(fontWeight = "Bold"),
+        align = "left"
+        ),
+      `Epic Department Name` = colDef(
+        maxWidth = 400,
+        headerStyle = list(background = "#221f72", color = "white", fontSize = "14px"),
+        align = "left"
+    )
+  )
+)
+
+```
+
+
+```{r Specialty Tab Output, echo = FALSE, warning = FALSE, message = FALSE, results="asis"}
+
+# specialty_list <- as.vector(unique(metrics_overview_site$Specialty))
+# 
+# for (i in specialty_list) {
+# 
+#   cat(" \n##", i,"\n")
+#   print(shiny::tagList(metrics_specialty_tbl_function(i)))
+#   print(htmltools::tagList(access_trending_graph(i)))
+#   htmltools::tagList(new_trending_graph(i))
+#   
+#   }
+
+
+```
+
