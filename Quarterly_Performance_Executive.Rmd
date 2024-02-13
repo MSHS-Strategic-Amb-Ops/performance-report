@@ -327,26 +327,46 @@ not_all_na <- function(x) all(!is.na(x)) # Exclude columns with All NAs
 ```{r Quarterly Processed Data Files, echo = FALSE, warning = FALSE, message = FALSE, results='hide'}
 
 # Referrals Tables -------------------------------------------------------------
-monthly_referral_vol <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/monthly_referral_vol.rds")
+monthly_referral_vol <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/Quarterly_Data/monthly_referral_vol.rds")
+
 
 # Volume Tables ----------------------------------------------------------------
 ## Arrived monthly volume ======================================================
-monthly_vol <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/monthly_vol.rds")
+monthly_vol <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/Quarterly_Data/monthly_vol.rds")
 ## Arrived Epic department quarterly volume ====================================
-vol_zip_code <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/vol_zip_code.rds")
+vol_zip_code <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/Quarterly_Data/vol_zip_code.rds")
 
 # Access Tables ----------------------------------------------------------------
 ## Wait Time Horizon by Specialty ==============================================
-waitTime_dist_specialty <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/waitTime_dist_specialty.rds")
-waitTime_dist_site <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/waitTime_dist_site.rds")
+waitTime_dist_specialty <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/Quarterly_Data/waitTime_dist_specialty.rds")
+waitTime_dist_site <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/Quarterly_Data/waitTime_dist_site.rds")
                                    
 ## Median Wait Time ============================================================
-waitTime_mshs <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/waitTime_mshs.rds")
-waitTime_site <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/waitTime_site.rds")
-waitTime_prov <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/waitTime_prov.rds")
+waitTime_mshs <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/Quarterly_Data/waitTime_mshs.rds")
+waitTime_site <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/Quarterly_Data/waitTime_site.rds")
+waitTime_prov <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/Quarterly_Data/waitTime_prov.rds")
 
 # Payor Mix Table --------------------------------------------------------------
-payer_mix_quarter_site <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/payer_mix_quarter_site.rds")
+payer_mix_quarter_site <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/Quarterly_Data/payer_mix_quarter_site.rds")
+
+
+## Arrived monthly volume ======================================================
+monthly_vol_office <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/Quarterly_Data/monthly_vol_office.rds")
+## Arrived Epic department quarterly volume ====================================
+vol_zip_code_office <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/Quarterly_Data/vol_zip_code_office.rds")
+
+# Access Tables ----------------------------------------------------------------
+## Wait Time Horizon by Specialty ==============================================
+waitTime_dist_specialty_office <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/Quarterly_Data/waitTime_dist_specialty_office.rds")
+waitTime_dist_site_office <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/Quarterly_Data/waitTime_dist_site_office.rds")
+                                   
+## Median Wait Time ============================================================
+waitTime_mshs_office <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/Quarterly_Data/waitTime_mshs_office.rds")
+waitTime_site_office <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/Quarterly_Data/waitTime_site_office.rds")
+waitTime_prov_office <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/Quarterly_Data/waitTime_prov_office.rds")
+
+# Payor Mix Table --------------------------------------------------------------
+payer_mix_quarter_site_office <- readRDS("C:/Users/kweons01/Desktop/Strategic Initiatives - So Youn/Github/quarterly-processing/Quarterly_Data/Quarterly_Data/payer_mix_quarter_site_office.rds")
 
 
 # # Utilization Data -------------------------------------------------------------
@@ -379,12 +399,15 @@ reporting_YearQtr <- quarters_list[length(quarters_list)]
 data_quarters <- tail(quarters_list,5)
 
 # Specify campuses to include
-inc_sites <- c("NETWORK","MSM","MSH-MSDFP","ONCOLOGY","MSW","MSBI","MSUS","MSH- AMBULATORY CARE","MSDD")
+inc_sites <- c("NYEE", "MSB","NETWORK","MSM","MSH-MSDFP","ONCOLOGY","MSW","MSBI","MSUS","MSH- AMBULATORY CARE","MSDD")
 
 # Specialties Breakdown 
 key_specialties <- c("Cardiovascular Institute/Cardiology", "Medicine - Endocrinology", "Medicine - Gastroenterology",
                      "Medicine - Primary Care", "Neurology", "OB-GYN",
-                     "Ophthalmology", "Orthopedics", "Otolaryngology", "Tisch Institute/Hematology Oncology",
+                     "Ophthalmology", "Orthopedics", 
+                     "Otolaryngology - Audiology", "Otolaryngology - ENT", "Otolaryngology - OMS", 
+                     "Otolaryngology - Speech Therapy",
+                     "Tisch Institute/Hematology Oncology",
                      "Urology")
 
 # Annualized Month Variables
@@ -609,11 +632,19 @@ productivity_raw <- productivity_raw %>%
       group_by(Specialty, Received.YearQtr, Campus) %>%
       pivot_wider(names_from = ApptStatusFinal,
                   values_from = total, 
-                  values_fill = 0) %>%
-      mutate(Total = sum(c_across(Arrived:Scheduled))) %>%
-      mutate(`Conversion Rate` = round((Total - Pending)/Total,2),
-             `Completion Rate` = round(Arrived/Total,2)) %>%
-      dplyr::select(Specialty, Campus, Received.YearQtr, `Conversion Rate`) 
+                  values_fill = 0) 
+    
+    nms <- c("Specialty", "Received.YearQtr", "Campus", "Total", "Closed", "Arrived", "No Show", "Canceled", "Scheduled", "Pending", "Conversion Rate", "Completion Rate")
+  Missing <- setdiff(nms, names(conversion_rate_mshs_overview))  # Find names of missing columns
+  conversion_rate_mshs_overview[Missing] <- 0                    # Add them, filled with '0's
+  conversion_rate_mshs_overview <- conversion_rate_mshs_overview[nms]
+  
+  conversion_rate_mshs_overview <- conversion_rate_mshs_overview %>%
+    mutate(Total = rowSums(across(where(is.numeric)))) %>%
+    mutate(Closed = Total - Pending) %>%
+    mutate(`Conversion Rate` = round((Total - Pending)/Total,2)*100,
+           `Completion Rate` = round(Arrived/Total,2)*100) %>%
+    dplyr::select(Specialty, Received.YearQtr, Campus,`Conversion Rate`) 
     
     
     conversion_rate_site_overview <- conversion_data %>%
@@ -622,11 +653,19 @@ productivity_raw <- productivity_raw %>%
       group_by(Specialty, Campus, Received.YearQtr) %>%
       pivot_wider(names_from = ApptStatusFinal,
                   values_from = total, 
-                  values_fill = 0) %>%
-     mutate(Total = sum(c_across(Arrived:Scheduled))) %>%
-     mutate(`Conversion Rate` = round((Total - Pending)/Total,2),
-            `Completion Rate` = round(Arrived/Total,2)) %>%
-     dplyr::select(Campus, `Conversion Rate`)
+                  values_fill = 0) 
+    
+    nms <- c("Specialty", "Received.YearQtr", "Campus", "Total", "Closed", "Arrived", "No Show", "Canceled", "Scheduled", "Pending", "Conversion Rate", "Completion Rate")
+  Missing <- setdiff(nms, names(conversion_rate_site_overview))  # Find names of missing columns
+  conversion_rate_site_overview[Missing] <- 0                    # Add them, filled with '0's
+  conversion_rate_site_overview <- conversion_rate_site_overview[nms]
+  
+  conversion_rate_site_overview <- conversion_rate_site_overview %>%
+    mutate(Total = rowSums(across(where(is.numeric)))) %>%
+    mutate(Closed = Total - Pending) %>%
+    mutate(`Conversion Rate` = round((Total - Pending)/Total,2)*100,
+           `Completion Rate` = round(Arrived/Total,2)*100) %>%
+    dplyr::select(Specialty, Received.YearQtr, Campus,`Conversion Rate`)
     
     
     conversion_rate_overview <- bind_rows(conversion_rate_mshs_overview, conversion_rate_site_overview)
@@ -637,6 +676,7 @@ productivity_raw <- productivity_raw %>%
     # % Physicians <p50
     p50_mshs_overview <- productivity_raw %>%
       mutate(temp_site = ifelse(Site == "MSW/MSM", "MSW", Site)) %>%
+      mutate(temp_site = ifelse(temp_site == "MSBk", "MSB", temp_site)) %>%
       mutate(temp_site = ifelse(temp_site == "MSH", "MSH-MSDFP", temp_site)) %>%
       filter(`Master Dept` %!in% c("BIMG","MS DOCS","West Care/ West Park","HUDSON YARDS","MANHASSET")) %>%
       filter(!is.na(`Master Dept`)) %>%
@@ -655,6 +695,7 @@ productivity_raw <- productivity_raw %>%
 
     p50_site_overview <- productivity_raw %>%
       mutate(temp_site = ifelse(Site == "MSW/MSM", "MSW", Site)) %>%
+       mutate(temp_site = ifelse(temp_site == "MSBk", "MSB", temp_site)) %>%
       mutate(temp_site = ifelse(temp_site == "MSH", "MSH-MSDFP", temp_site)) %>%
       filter(`Master Dept` %!in% c("BIMG","MS DOCS","West Care/ West Park","HUDSON YARDS","MANHASSET")) %>%
       filter(!is.na(`Master Dept`)) %>%
@@ -679,6 +720,7 @@ productivity_raw <- productivity_raw %>%
     # % Physicians <p75
     p75_mshs_overview <- productivity_raw %>%
       mutate(temp_site = ifelse(Site == "MSW/MSM", "MSW", Site)) %>%
+       mutate(temp_site = ifelse(temp_site == "MSBk", "MSB", temp_site)) %>%
       mutate(temp_site = ifelse(temp_site == "MSH", "MSH-MSDFP", temp_site)) %>%
       filter(`Master Dept` %!in% c("BIMG","MS DOCS","West Care/ West Park","HUDSON YARDS","MANHASSET")) %>%
       filter(!is.na(`Master Dept`)) %>%
@@ -697,6 +739,7 @@ productivity_raw <- productivity_raw %>%
 
     p75_site_overview <- productivity_raw %>%
       mutate(temp_site = ifelse(Site == "MSW/MSM", "MSW", Site)) %>%
+       mutate(temp_site = ifelse(temp_site == "MSBk", "MSB", temp_site)) %>%
       mutate(temp_site = ifelse(temp_site == "MSH", "MSH-MSDFP", temp_site)) %>%
       filter(`Master Dept` %!in% c("BIMG","MS DOCS","West Care/ West Park","HUDSON YARDS","MANHASSET")) %>%
       filter(!is.na(`Master Dept`)) %>%
@@ -1260,8 +1303,8 @@ ________________________________________________________________________________
       dplyr::select(Specialty, Campus, med_wait, med_wait_change, new_perc, new_perc_change,
              var_last_qrt, var_last_yr, `Conversion Rate`, p50, p50_change, p75, p75_change, Space_Turn, Space_Duration) %>%
       arrange(Specialty) %>%
-      mutate(Campus = factor(Campus, levels = c("MSHS*", "MSBI", "MSDD", "MSH- AMBULATORY CARE",
-                                                "MSH-MSDFP", "MSM", "MSUS", "MSW", "NETWORK", "ONCOLOGY"))) 
+      mutate(Campus = factor(Campus, levels = c("MSHS*", "MSB", "MSBI", "MSDD", "MSH- AMBULATORY CARE",
+                                                "MSH-MSDFP", "MSM", "MSUS", "MSW", "NETWORK", "NYEE","ONCOLOGY"))) 
     
     metrics_site_tbl_key <-  metrics_site_tbl %>%
       filter(Specialty %in% key_specialties)
